@@ -1,0 +1,45 @@
+{
+  "name": "@traeop/electron-modular",
+  "version": "0.1.0",
+  "description": "Core module system, DI container, IPC handlers, and window utilities for Electron main process.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "electron": ">=36"
+  },
+  "dependencies": {
+    "reflect-metadata": "^0.2.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "electron": "^36.4.0",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "keywords": [
+    "electron",
+    "di",
+    "ipc",
+    "windows",
+    "decorators",
+    "container"
+  ],
+  "license": "MIT"
+}
