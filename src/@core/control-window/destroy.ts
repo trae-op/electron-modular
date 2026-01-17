@@ -1,12 +1,11 @@
 import { BrowserWindow } from "electron";
 
-export function destroyWindows() {
+export const destroyWindows = (): void => {
   const windows = BrowserWindow.getAllWindows();
-  if (windows.length > 0) {
-    windows.forEach((window) => {
-      if (!window.isDestroyed()) {
-        window.destroy();
-      }
-    });
+
+  for (const window of windows) {
+    if (!window.isDestroyed()) {
+      window.destroy();
+    }
   }
-}
+};

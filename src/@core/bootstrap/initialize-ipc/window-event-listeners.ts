@@ -1,11 +1,10 @@
-import { BrowserWindow } from "electron";
+import type { BrowserWindow, WebContents } from "electron";
 import type { TWindowManagerWithHandlers } from "../../types/window-manager.js";
 
-type TEventEmitter = {
-  on: (...args: any[]) => any;
-  off?: (...args: any[]) => any;
-  removeListener?: (...args: any[]) => any;
-};
+type TEventEmitter = Pick<
+  BrowserWindow | WebContents,
+  "on" | "off" | "removeListener"
+>;
 
 type TWindowListenerEntry = {
   instance: TWindowManagerWithHandlers;
@@ -23,11 +22,11 @@ const getPrototypeMethodNames = (instance: object): string[] => {
   let proto = Object.getPrototypeOf(instance);
 
   while (proto && proto !== Object.prototype) {
-    for (const name of Object.getOwnPropertyNames(proto)) {
+    Object.getOwnPropertyNames(proto).forEach((name) => {
       if (name !== "constructor") {
         names.add(name);
       }
-    }
+    });
     proto = Object.getPrototypeOf(proto);
   }
 
@@ -40,12 +39,10 @@ const toEventName = (handlerName: string): string => {
     .replace(WEB_CONTENTS_PREFIX, "")
     .replace(EVENT_PREFIX, "");
 
-  const kebab = cleaned
+  return cleaned
     .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
     .replace(/([A-Z])([A-Z][a-z])/g, "$1-$2")
     .toLowerCase();
-
-  return kebab;
 };
 
 const isHandlerName = (name: string): boolean => {
@@ -56,25 +53,18 @@ const isWebContentsHandler = (name: string): boolean => {
   return name.startsWith(WEB_CONTENTS_PREFIX);
 };
 
-const isWindowHandler = (name: string): boolean => {
-  return name.startsWith(WINDOW_PREFIX);
-};
-
 const addListener = (
   emitter: TEventEmitter,
   eventName: string,
-  listener: (...args: any[]) => void
+  listener: (...args: unknown[]) => void,
 ): (() => void) => {
-  emitter.on(eventName, listener);
+  (emitter.on as any)(eventName, listener);
 
   return () => {
-    if (typeof emitter.off === "function") {
-      emitter.off(eventName, listener);
-      return;
-    }
-
-    if (typeof emitter.removeListener === "function") {
-      emitter.removeListener(eventName, listener);
+    if (emitter.off) {
+      (emitter.off as any)(eventName, listener);
+    } else if (emitter.removeListener) {
+      (emitter.removeListener as any)(eventName, listener);
     }
   };
 };
@@ -84,7 +74,7 @@ const attachHandlersToEmitter = (
   browserWindow: BrowserWindow,
   windowInstance: TWindowManagerWithHandlers,
   handlerNames: string[],
-  filter: (name: string) => boolean
+  filter: (name: string) => boolean,
 ): Array<() => void> => {
   const cleanups: Array<() => void> = [];
 
@@ -95,18 +85,18 @@ const attachHandlersToEmitter = (
 
     const handler =
       windowInstance[handlerName as keyof TWindowManagerWithHandlers];
+
     if (typeof handler !== "function") {
       continue;
     }
 
     const eventName = toEventName(handlerName);
-    const listener = (...args: any[]) => {
+    const listener = (...args: unknown[]) => {
       if (handler.length <= 1) {
         handler.apply(windowInstance, [browserWindow]);
-        return;
+      } else {
+        handler.apply(windowInstance, [...args, browserWindow]);
       }
-
-      handler.apply(windowInstance, [...args, browserWindow]);
     };
 
     cleanups.push(addListener(emitter, eventName, listener));
@@ -115,13 +105,13 @@ const attachHandlersToEmitter = (
   return cleanups;
 };
 
-export function attachWindowEventListeners(
+export const attachWindowEventListeners = (
   browserWindow: BrowserWindow,
-  windowInstance: TWindowManagerWithHandlers
-): void {
+  windowInstance: TWindowManagerWithHandlers,
+): void => {
   const entry = windowListeners.get(browserWindow);
 
-  if (entry && entry.instance === windowInstance) {
+  if (entry?.instance === windowInstance) {
     return;
   }
 
@@ -137,7 +127,7 @@ export function attachWindowEventListeners(
     browserWindow,
     windowInstance,
     handlerNames,
-    (name) => !isWebContentsHandler(name)
+    (name) => !isWebContentsHandler(name),
   );
 
   const webContentsCleanups = attachHandlersToEmitter(
@@ -145,7 +135,7 @@ export function attachWindowEventListeners(
     browserWindow,
     windowInstance,
     handlerNames,
-    (name) => isWebContentsHandler(name)
+    isWebContentsHandler,
   );
 
   windowListeners.set(browserWindow, {
@@ -160,4 +150,4 @@ export function attachWindowEventListeners(
       windowListeners.delete(browserWindow);
     }
   });
-}
+};

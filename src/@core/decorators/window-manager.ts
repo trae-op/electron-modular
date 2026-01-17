@@ -1,9 +1,10 @@
+import "reflect-metadata/lite";
 import type { TParamsCreateWindow } from "../control-window/types.js";
 
-export function WindowManager<P extends string>(
+export const WindowManager = <P extends string>(
   options: TParamsCreateWindow<P>,
-): ClassDecorator {
+): ClassDecorator => {
   return (target: Function) => {
     Reflect.defineMetadata("WindowManager", options, target);
   };
-}
+};

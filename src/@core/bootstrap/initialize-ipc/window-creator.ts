@@ -1,6 +1,6 @@
-import { BrowserWindow } from "electron";
-import { createWindow } from "../../control-window/create.js";
+import type { BrowserWindow } from "electron";
 import type { TParamsCreateWindow } from "../../control-window/types.js";
+import { createWindow } from "../../control-window/create.js";
 
 type TPlainObject = Record<string, unknown>;
 
@@ -22,22 +22,22 @@ const mergeDeep = <T extends TPlainObject>(target: T, source: T): T => {
       output[key] = isPlainObject(current)
         ? mergeDeep(current, value)
         : mergeDeep({}, value);
-      continue;
+    } else {
+      output[key] = value;
     }
-
-    output[key] = value;
   }
 
   return output as T;
 };
 
-export function createWindowWithParams<W extends TParamsCreateWindow>(
+export const createWindowWithParams = <W extends TParamsCreateWindow>(
   baseMetadata: W,
   params?: W,
-): BrowserWindow {
+): BrowserWindow => {
   const mergedSettings =
     params !== undefined
       ? mergeDeep(baseMetadata as TPlainObject, params as TPlainObject)
       : baseMetadata;
+
   return createWindow(mergedSettings);
-}
+};

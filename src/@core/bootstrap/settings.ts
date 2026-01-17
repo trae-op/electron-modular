@@ -1,3 +1,5 @@
+import { SettingsNotInitializedError } from "../errors/index.js";
+
 export type TFolderSettings = {
   distRenderer: string;
   distMain: string;
@@ -18,8 +20,9 @@ export const initSettings = (options: TSettings): void => {
 
 export const getSettings = (): TSettings => {
   const cachedSettings = settings.get(KEY);
+
   if (!cachedSettings) {
-    throw new Error("App settings cache has not been initialized.");
+    throw new SettingsNotInitializedError();
   }
 
   return cachedSettings;

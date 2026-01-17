@@ -1,23 +1,26 @@
-import { container } from "../container.js";
 import type { RgModuleMetadata } from "../types/module-metadata.js";
+import type { Constructor } from "../types/constructor.js";
+import { container } from "../container.js";
 import { registerProviders } from "./register-providers.js";
 import { registerImports } from "./register-imports.js";
 import { registerWindows } from "./register-windows.js";
 import { registerIpcHandlers } from "./register-ipc-handlers.js";
-import type { Constructor } from "../types/constructor.js";
 
-export async function initializeModule(
+export const initializeModule = async (
   moduleClass: Constructor,
   metadata: RgModuleMetadata,
-): Promise<void> {
+): Promise<void> => {
   const isNewModule = container.addModule(moduleClass, metadata);
   container.setModuleMetadata(moduleClass, metadata);
 
   if (!isNewModule) {
     return;
   }
-  await registerProviders(moduleClass, metadata);
-  await registerImports(metadata);
-  await registerWindows(moduleClass, metadata);
-  await registerIpcHandlers(moduleClass, metadata);
-}
+
+  await Promise.all([
+    registerProviders(moduleClass, metadata),
+    registerImports(metadata),
+    registerWindows(moduleClass, metadata),
+    registerIpcHandlers(moduleClass, metadata),
+  ]);
+};
