@@ -114,7 +114,7 @@ describe("getWindow", () => {
     expect(getWindow("to-be-destroyed")).toBe(mockWindow);
 
     // Simulate window destruction
-    mockWindow.isDestroyed = () => true;
+    mockWindow.isDestroyed.mockReturnValue(true);
 
     // Should now return undefined
     expect(getWindow("to-be-destroyed")).toBeUndefined();

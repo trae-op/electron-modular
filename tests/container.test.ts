@@ -25,7 +25,10 @@ describe("Container", () => {
       inject: [ConfigService],
     });
 
-    const instance = await container.resolve(TestModule, FeatureService);
+    const instance = await container.resolve<FeatureService>(
+      TestModule,
+      FeatureService,
+    );
 
     expect(instance).toBeDefined();
     expect(instance?.config).toBeInstanceOf(ConfigService);

@@ -19,7 +19,9 @@ describe("@RgModule Decorator", () => {
   it("should handle complete module configuration", () => {
     class ServiceA {}
     class ServiceB {}
-    class IpcHandlerA {}
+    class IpcHandlerA {
+      onInit(_: unknown) {}
+    }
     class WindowA {}
     class ImportedModule {}
 

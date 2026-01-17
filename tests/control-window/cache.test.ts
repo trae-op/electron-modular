@@ -26,7 +26,7 @@ describe("cacheWindows", () => {
     const retrieved = cacheWindows.get("settings-window");
 
     expect(retrieved).toBe(mockWindow);
-    expect(retrieved.id).toBe(2);
+    expect(retrieved?.id).toBe(2);
   });
 
   it("should support multiple windows", () => {
@@ -78,8 +78,8 @@ describe("cacheWindows", () => {
     cacheWindows.set("settings", window2);
 
     // Verify references haven't changed
-    expect(cacheWindows.get("main")?.name).toBe("Main");
-    expect(cacheWindows.get("settings")?.name).toBe("Settings");
+    expect((cacheWindows.get("main") as any)?.name).toBe("Main");
+    expect((cacheWindows.get("settings") as any)?.name).toBe("Settings");
   });
 
   it("should allow updating window references", () => {
@@ -87,10 +87,10 @@ describe("cacheWindows", () => {
     const window2 = { id: 1, version: 2 } as any;
 
     cacheWindows.set("updatable", window1);
-    expect(cacheWindows.get("updatable")?.version).toBe(1);
+    expect((cacheWindows.get("updatable") as any)?.version).toBe(1);
 
     cacheWindows.set("updatable", window2);
-    expect(cacheWindows.get("updatable")?.version).toBe(2);
+    expect((cacheWindows.get("updatable") as any)?.version).toBe(2);
   });
 
   it("should work with any valid key type", () => {
