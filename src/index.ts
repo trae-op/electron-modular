@@ -11,6 +11,7 @@ export * from "./@core/bootstrap/initialize-ipc/handlers.js";
 export * from "./@core/bootstrap/initialize-ipc/window-creator.js";
 export * from "./@core/bootstrap/initialize-ipc/window-event-listeners.js";
 export * from "./@core/bootstrap/initialize-ipc/window-instance-creator.js";
+export * from "./@core/bootstrap/settings.js";
 
 export * from "./@core/control-window/cache.js";
 export * from "./@core/control-window/create.js";
