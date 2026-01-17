@@ -268,6 +268,54 @@ export class UserWindow implements TWindowManager {
 }
 ```
 
+### Lifecycle Hooks (Window & WebContents events) ✅
+
+The window manager supports lifecycle hooks by naming methods on your class following a simple convention:
+
+- Use `on<ClassicEvent>` for BrowserWindow events (e.g. `onFocus`, `onMaximize`).
+- Use `onWebContents<Thing>` for WebContents events (e.g. `onWebContentsDidFinishLoad`, `onWebContentsWillNavigate`).
+
+How method names map to Electron events:
+
+- The framework removes the `on` or `onWebContents` prefix, converts the remaining CamelCase to kebab-case and uses that as the event name.
+  - `onFocus` → `focus`
+  - `onMaximize` → `maximize`
+  - `onWebContentsDidFinishLoad` → `did-finish-load`
+  - `onWebContentsWillNavigate` → `will-navigate`
+
+Handler signatures and parameters 🔧
+
+- If your method declares 0 or 1 parameter (i.e. `handler.length <= 1`) it will be called with the `BrowserWindow` instance only:
+
+```ts
+onFocus(window: BrowserWindow): void {
+  // Called when window receives focus
+  window.webContents.send("window:focused");
+}
+```
+
+- If your method declares more than 1 parameter, the original Electron event arguments are forwarded first and the `BrowserWindow` is appended as the last argument. This is useful for WebContents or events that include event objects and additional data:
+
+```ts
+onWebContentsWillNavigate(ev: Electron.Event, url: string, window: BrowserWindow) {
+  // ev and url come from webContents, window is appended by the framework
+  console.log("navigating to", url);
+}
+```
+
+Common BrowserWindow events you can handle:
+
+- `onFocus`, `onBlur`, `onMaximize`, `onUnmaximize`, `onMinimize`, `onRestore`, `onResize`, `onMove`, `onClose`, `onClosed`
+
+Common WebContents events you can handle:
+
+- `onWebContentsDidFinishLoad`, `onWebContentsDidFailLoad`, `onWebContentsDomReady`, `onWebContentsWillNavigate`, `onWebContentsDidNavigate`, `onWebContentsNewWindow`, `onWebContentsDestroyed`
+
+Important implementation notes ⚠️
+
+- Handlers are attached per BrowserWindow instance and cleaned up automatically when the window is closed, so you don't have to manually remove listeners.
+- The same instance and set of handlers are tracked in a WeakMap internally; re-attaching the same `windowInstance` will not duplicate listeners.
+
 ---
 
 ## TypeScript types — `TWindows["myWindow"]`
