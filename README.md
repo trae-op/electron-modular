@@ -14,9 +14,45 @@ The package is a dependency injection framework for Electron main process. It us
 
 ---
 
+## Installation
+
+Install with your package manager:
+
+```bash
+# npm
+npm install @_traeop_/electron-modular
+
+# yarn
+yarn add @_traeop_/electron-modular
+
+# pnpm
+pnpm add @_traeop_/electron-modular
+```
+
+Peer dependency:
+
+This package targets Electron's main process and declares Electron >=36 as a peer dependency. Ensure Electron is installed in your project:
+
+```bash
+npm install --save-dev electron@^36
+```
+
+TypeScript setup:
+
+- Enable decorators and metadata in your `tsconfig.json`:
+
+```json
+"experimentalDecorators": true,
+"emitDecoratorMetadata": true
+```
+
+> Tip: This package is published as ESM. When importing local modules, use `.js` extensions in runtime imports, e.g. `import { UserModule } from "./user/module.js"`.
+
+---
+
 ## Quick Start
 
-### 1. Bootstrap Application `app.ts`
+### 1. Bootstrap Application `main.ts`
 
 Initialize the framework and bootstrap all modules:
 
@@ -465,6 +501,10 @@ const window = await mainWindow.create();
 Destroys all cached windows.
 
 ```typescript
+...
+import { destroyWindows } from "@_traeop_/electron-modular";
+...
+
 app.on("before-quit", () => {
   destroyWindows();
 });
