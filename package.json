@@ -1,6 +1,6 @@
 {
   "name": "@traeop/electron-modular",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Core module system, DI container, IPC handlers, and window utilities for Electron main process.",
   "type": "module",
   "main": "./dist/index.js",
