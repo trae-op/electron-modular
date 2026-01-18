@@ -2,7 +2,23 @@
 
 ## Overview
 
-The package is a dependency injection framework for Electron main process. It uses TypeScript decorators to manage services, IPC handlers, and windows.
+A lightweight dependency injection container for Electron's main process that brings modular architecture and clean code organization to your desktop applications.
+
+### What It Solves
+
+Building complex Electron apps often leads to tightly coupled code, scattered IPC handlers, and difficulty managing window lifecycles. This package addresses these challenges by providing:
+
+- **Organized Code Structure** - Split your application into independent, testable modules instead of monolithic files
+- **Automatic Dependency Management** - No more manual service instantiation or passing dependencies through multiple layers
+- **Centralized IPC Logic** - Group related IPC handlers with their business logic instead of scattering them across your codebase
+- **Window Lifecycle Control** - Manage BrowserWindow creation, caching, and event handling in dedicated classes
+- **Type-Safe Module Boundaries** - Share only necessary interfaces between modules using the provider pattern
+
+### What You Get
+
+The package uses TypeScript decorators (`@RgModule`, `@Injectable`, `@IpcHandler`, `@WindowManager`) to eliminate boilerplate and let you focus on business logic. Services are automatically instantiated with their dependencies, IPC handlers are registered during module initialization, and windows are created with lifecycle hooks that run at the right time.
+
+Instead of wrestling with service initialization order or managing global state, you define modules with clear dependencies and let the container handle the rest.
 
 ### Key Features
 
