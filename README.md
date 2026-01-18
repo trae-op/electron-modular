@@ -2,7 +2,7 @@
 
 ## Overview
 
-`@traeop/electron-modular` is a dependency injection framework for Electron main process. It uses TypeScript decorators to manage services, IPC handlers, and windows.
+The package is a dependency injection framework for Electron main process. It uses TypeScript decorators to manage services, IPC handlers, and windows.
 
 ### Key Features
 
@@ -22,7 +22,7 @@ Initialize the framework and bootstrap all modules:
 
 ```typescript
 import { app } from "electron";
-import { initSettings, bootstrapModules } from "@traeop/electron-modular";
+import { initSettings, bootstrapModules } from "@_traeop_/electron-modular";
 import { UserModule } from "./user/module.js";
 import { ResourcesModule } from "./resources/module.js";
 
@@ -71,7 +71,7 @@ Import a module and directly inject its exported service.
 #### Module Definition `user/module.ts`
 
 ```typescript
-import { RgModule } from "@traeop/electron-modular";
+import { RgModule } from "@_traeop_/electron-modular";
 import { RestApiModule } from "../rest-api/module.js";
 import { UserService } from "./service.js";
 import { UserIpc } from "./ipc.js";
@@ -88,7 +88,7 @@ export class UserModule {}
 #### Service Implementation `user/service.ts`
 
 ```typescript
-import { Injectable } from "@traeop/electron-modular";
+import { Injectable } from "@_traeop_/electron-modular";
 import { RestApiService } from "../rest-api/service.js";
 
 @Injectable()
@@ -146,7 +146,7 @@ export type TUserRestApiProvider = {
 #### Module Definition `user/module.ts`
 
 ```typescript
-import { RgModule } from "@traeop/electron-modular";
+import { RgModule } from "@_traeop_/electron-modular";
 import { RestApiModule } from "../rest-api/module.js";
 import { RestApiService } from "../rest-api/service.js";
 import { UserService } from "./service.js";
@@ -216,7 +216,7 @@ import {
   IpcHandler,
   TIpcHandlerInterface,
   TParamOnInit,
-} from "@traeop/electron-modular";
+} from "@_traeop_/electron-modular";
 import { UserService } from "./service.js";
 
 @IpcHandler()
@@ -241,7 +241,7 @@ export class UserIpc implements TIpcHandlerInterface {
 Manage BrowserWindow lifecycle and configuration.
 
 ```typescript
-import { WindowManager } from "@traeop/electron-modular";
+import { WindowManager } from "@_traeop_/electron-modular";
 import type { TWindowManager } from "../types.js";
 
 @WindowManager<TWindows["userProfile"]>({
