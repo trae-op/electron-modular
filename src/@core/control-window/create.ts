@@ -5,54 +5,19 @@ import { cacheWindows } from "./cache.js";
 import { getWindow } from "./receive.js";
 import { getSettings } from "../bootstrap/settings.js";
 
-const createContentSecurityPolicy = (
-  baseRestApi: string,
-  isDev: boolean,
-): string => {
-  const csp = `
-    default-src 'self';
-    connect-src 'self' ${baseRestApi};
-    img-src * data:;
-    style-src 'self' 'unsafe-inline';
-    script-src 'self' ${isDev ? "'unsafe-inline'" : ""};
-  `
-    .replace(/\s{2,}/g, " ")
-    .trim();
-
-  return csp;
-};
-
-const setupContentSecurityPolicy = (
-  baseRestApi: string,
-  isDev: boolean,
-): void => {
-  const csp = createContentSecurityPolicy(baseRestApi, isDev);
-
-  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
-    callback({
+const setupCSP = (base: string, dev: boolean): void => {
+  const csp =
+    `default-src 'self'; connect-src 'self' ${base}; img-src * data:; style-src 'self' 'unsafe-inline'; script-src 'self' ${dev ? "'unsafe-inline'" : ""};`
+      .replace(/\s{2,}/g, " ")
+      .trim();
+  session.defaultSession.webRequest.onHeadersReceived((d, cb) => {
+    cb({
       responseHeaders: {
-        ...details.responseHeaders,
+        ...d.responseHeaders,
         "Content-Security-Policy": [csp],
       },
     });
   });
-};
-
-const getAppPaths = (
-  settings: ReturnType<typeof getSettings>,
-  isDev: boolean,
-) => {
-  return {
-    ui: path.join(
-      app.getAppPath(),
-      `/${settings.folders.distRenderer}/index.html`,
-    ),
-    preload: path.join(
-      app.getAppPath(),
-      isDev ? "." : "..",
-      `/${settings.folders.distMain}/preload.cjs`,
-    ),
-  };
 };
 
 export const createWindow = <N extends string>({
@@ -63,60 +28,62 @@ export const createWindow = <N extends string>({
 }: TParamsCreateWindow<N>): BrowserWindow => {
   const settings = getSettings();
   const isDev = process.env.NODE_ENV === "development";
-  const { ui: uiPath, preload: preloadPath } = getAppPaths(settings, isDev);
+  const ui = path.join(
+    app.getAppPath(),
+    `/${settings.folders.distRenderer}/index.html`,
+  );
+  const preload = path.join(
+    app.getAppPath(),
+    isDev ? "." : "..",
+    `/${settings.folders.distMain}/preload.cjs`,
+  );
 
-  if (!settings.baseRestApi) {
+  if (!settings.baseRestApi)
     console.warn(
       'Warning: You have to add an environment variable called "process.env.BASE_REST_API"!',
     );
-  }
-
-  if (!settings.localhostPort) {
+  if (!settings.localhostPort)
     console.warn(
       'Warning: You have to add an environment variable called "process.env.LOCALHOST_ELECTRON_SERVER_PORT"!',
     );
-  }
 
   if (hash && isCache) {
-    const existingWindow = getWindow(hash);
-    if (existingWindow) {
-      existingWindow.show();
-      return existingWindow;
+    const existing = getWindow(hash);
+    if (existing) {
+      existing.show();
+      return existing;
     }
   }
 
-  const newWindow = new BrowserWindow({
+  const win = new BrowserWindow({
     ...options,
     webPreferences: {
-      preload: preloadPath,
+      preload,
       contextIsolation: true,
       nodeIntegration: false,
       ...options?.webPreferences,
     },
   });
 
-  if (isCache && !loadURL) {
-    setupContentSecurityPolicy(settings.baseRestApi, isDev);
-  }
+  if (isCache && !loadURL) setupCSP(settings.baseRestApi, isDev);
 
   if (loadURL) {
-    newWindow.loadURL(loadURL);
+    win.loadURL(loadURL);
   } else if (isDev) {
-    newWindow.loadURL(
+    win.loadURL(
       `http://localhost:${settings.localhostPort}${hash ? `#${hash}` : ""}`,
     );
   } else if (hash) {
-    newWindow.loadFile(uiPath, { hash });
+    win.loadFile(ui, { hash });
   }
 
   if (hash && isCache) {
-    cacheWindows.set(hash, newWindow);
-
-    newWindow.on("close", (event) => {
-      event.preventDefault();
-      newWindow.hide();
+    cacheWindows.set(hash, win);
+    win.on("close", (e) => {
+      e.preventDefault();
+      win.hide();
     });
   }
 
-  return newWindow;
+  return win;
 };

@@ -13,141 +13,89 @@ type TWindowListenerEntry = {
 
 const windowListeners = new WeakMap<BrowserWindow, TWindowListenerEntry>();
 
-const EVENT_PREFIX = "on" as const;
-const WINDOW_PREFIX = "onWindow" as const;
-const WEB_CONTENTS_PREFIX = "onWebContents" as const;
-
 const getPrototypeMethodNames = (instance: object): string[] => {
   const names = new Set<string>();
   let proto = Object.getPrototypeOf(instance);
-
   while (proto && proto !== Object.prototype) {
-    Object.getOwnPropertyNames(proto).forEach((name) => {
-      if (name !== "constructor") {
-        names.add(name);
-      }
-    });
+    Object.getOwnPropertyNames(proto).forEach(
+      (n) => n !== "constructor" && names.add(n),
+    );
     proto = Object.getPrototypeOf(proto);
   }
-
   return Array.from(names);
 };
 
-const toEventName = (handlerName: string): string => {
-  const cleaned = handlerName
-    .replace(WINDOW_PREFIX, "")
-    .replace(WEB_CONTENTS_PREFIX, "")
-    .replace(EVENT_PREFIX, "");
-
-  return cleaned
+const toEventName = (h: string): string => {
+  const c = h.replace(/^(onWindow|onWebContents|on)/, "");
+  return c
     .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
     .replace(/([A-Z])([A-Z][a-z])/g, "$1-$2")
     .toLowerCase();
 };
 
-const isHandlerName = (name: string): boolean => {
-  return name.startsWith(EVENT_PREFIX);
-};
-
-const isWebContentsHandler = (name: string): boolean => {
-  return name.startsWith(WEB_CONTENTS_PREFIX);
-};
-
-const addListener = (
-  emitter: TEventEmitter,
-  eventName: string,
-  listener: (...args: unknown[]) => void,
-): (() => void) => {
-  (emitter.on as any)(eventName, listener);
-
-  return () => {
-    if (emitter.off) {
-      (emitter.off as any)(eventName, listener);
-    } else if (emitter.removeListener) {
-      (emitter.removeListener as any)(eventName, listener);
-    }
-  };
-};
-
 const attachHandlersToEmitter = (
   emitter: TEventEmitter,
-  browserWindow: BrowserWindow,
-  windowInstance: TWindowManagerWithHandlers,
-  handlerNames: string[],
-  filter: (name: string) => boolean,
+  win: BrowserWindow,
+  inst: TWindowManagerWithHandlers,
+  names: string[],
+  filter: (n: string) => boolean,
 ): Array<() => void> => {
   const cleanups: Array<() => void> = [];
-
-  for (const handlerName of handlerNames) {
-    if (!filter(handlerName)) {
-      continue;
-    }
-
-    const handler =
-      windowInstance[handlerName as keyof TWindowManagerWithHandlers];
-
-    if (typeof handler !== "function") {
-      continue;
-    }
-
-    const eventName = toEventName(handlerName);
+  for (const name of names) {
+    if (!filter(name)) continue;
+    const h = inst[name as keyof TWindowManagerWithHandlers];
+    if (typeof h !== "function") continue;
+    const evt = toEventName(name);
     const listener = (...args: unknown[]) => {
-      if (handler.length <= 1) {
-        handler.apply(windowInstance, [browserWindow]);
-      } else {
-        handler.apply(windowInstance, [...args, browserWindow]);
-      }
+      h.length <= 1 ? h.apply(inst, [win]) : h.apply(inst, [...args, win]);
     };
-
-    cleanups.push(addListener(emitter, eventName, listener));
+    (emitter.on as any)(evt, listener);
+    cleanups.push(() => {
+      emitter.off
+        ? (emitter.off as any)(evt, listener)
+        : emitter.removeListener &&
+          (emitter.removeListener as any)(evt, listener);
+    });
   }
-
   return cleanups;
 };
 
 export const attachWindowEventListeners = (
-  browserWindow: BrowserWindow,
-  windowInstance: TWindowManagerWithHandlers,
+  win: BrowserWindow,
+  inst: TWindowManagerWithHandlers,
 ): void => {
-  const entry = windowListeners.get(browserWindow);
+  const entry = windowListeners.get(win);
+  if (entry?.instance === inst) return;
+  if (entry) entry.cleanup.forEach((c) => c());
 
-  if (entry?.instance === windowInstance) {
-    return;
-  }
+  const names = getPrototypeMethodNames(inst).filter((n) => n.startsWith("on"));
+  const isWebContents = (n: string) => n.startsWith("onWebContents");
 
-  if (entry) {
-    entry.cleanup.forEach((cleanup) => cleanup());
-  }
-
-  const handlerNames =
-    getPrototypeMethodNames(windowInstance).filter(isHandlerName);
-
-  const windowCleanups = attachHandlersToEmitter(
-    browserWindow,
-    browserWindow,
-    windowInstance,
-    handlerNames,
-    (name) => !isWebContentsHandler(name),
+  const winCleanups = attachHandlersToEmitter(
+    win,
+    win,
+    inst,
+    names,
+    (n) => !isWebContents(n),
+  );
+  const webCleanups = attachHandlersToEmitter(
+    win.webContents,
+    win,
+    inst,
+    names,
+    isWebContents,
   );
 
-  const webContentsCleanups = attachHandlersToEmitter(
-    browserWindow.webContents,
-    browserWindow,
-    windowInstance,
-    handlerNames,
-    isWebContentsHandler,
-  );
-
-  windowListeners.set(browserWindow, {
-    instance: windowInstance,
-    cleanup: [...windowCleanups, ...webContentsCleanups],
+  windowListeners.set(win, {
+    instance: inst,
+    cleanup: [...winCleanups, ...webCleanups],
   });
 
-  browserWindow.once("closed", () => {
-    const existing = windowListeners.get(browserWindow);
-    if (existing) {
-      existing.cleanup.forEach((cleanup) => cleanup());
-      windowListeners.delete(browserWindow);
+  win.once("closed", () => {
+    const e = windowListeners.get(win);
+    if (e) {
+      e.cleanup.forEach((c) => c());
+      windowListeners.delete(win);
     }
   });
 };

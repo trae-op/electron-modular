@@ -4,7 +4,6 @@ import type {
   TClassProvider,
   TExistingProvider,
   TFactoryProvider,
-  TProvider,
   TProviderToken,
   TValueProvider,
 } from "./types/provider.js";
@@ -176,21 +175,46 @@ export class Container {
     token: TProviderToken,
     provider: unknown,
   ): Promise<T | undefined> {
-    if (this.isFactoryProvider(provider)) {
-      return this.instantiateFactoryProvider<T>(moduleClass, token, provider);
+    const isObj =
+      typeof provider === "object" &&
+      provider !== null &&
+      "provide" in provider;
+
+    if (
+      isObj &&
+      "useFactory" in provider &&
+      typeof (provider as any).useFactory === "function"
+    ) {
+      return this.instantiateFactoryProvider<T>(
+        moduleClass,
+        token,
+        provider as TFactoryProvider,
+      );
     }
 
-    if (this.isClassProvider(provider)) {
-      return this.instantiateClassProvider<T>(moduleClass, token, provider);
+    if (
+      isObj &&
+      "useClass" in provider &&
+      typeof (provider as any).useClass === "function"
+    ) {
+      return this.instantiateClassProvider<T>(
+        moduleClass,
+        token,
+        provider as TClassProvider,
+      );
     }
 
-    if (this.isValueProvider(provider)) {
-      this.instances.set(token, provider.useValue);
-      return provider.useValue as T;
+    if (isObj && "useValue" in provider) {
+      const val = (provider as TValueProvider).useValue;
+      this.instances.set(token, val);
+      return val as T;
     }
 
-    if (this.isExistingProvider(provider)) {
-      const instance = await this.resolve<T>(moduleClass, provider.useExisting);
+    if (isObj && "useExisting" in provider) {
+      const instance = await this.resolve<T>(
+        moduleClass,
+        (provider as TExistingProvider).useExisting,
+      );
       if (instance !== undefined) {
         this.instances.set(token, instance);
       }
@@ -261,36 +285,6 @@ export class Container {
     return Promise.all(
       dependencies.map((dep) => this.resolve(moduleClass, dep)),
     );
-  }
-
-  private isProviderObject(provider: unknown): provider is TProvider {
-    return (
-      typeof provider === "object" && provider !== null && "provide" in provider
-    );
-  }
-
-  private isFactoryProvider(provider: unknown): provider is TFactoryProvider {
-    return (
-      this.isProviderObject(provider) &&
-      "useFactory" in provider &&
-      typeof provider.useFactory === "function"
-    );
-  }
-
-  private isClassProvider(provider: unknown): provider is TClassProvider {
-    return (
-      this.isProviderObject(provider) &&
-      "useClass" in provider &&
-      typeof provider.useClass === "function"
-    );
-  }
-
-  private isValueProvider(provider: unknown): provider is TValueProvider {
-    return this.isProviderObject(provider) && "useValue" in provider;
-  }
-
-  private isExistingProvider(provider: unknown): provider is TExistingProvider {
-    return this.isProviderObject(provider) && "useExisting" in provider;
   }
 }
 

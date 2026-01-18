@@ -1,36 +1,51 @@
-export class ModuleNotRegisteredError extends Error {
-  constructor(moduleName: string) {
-    super(`Module "${moduleName}" is not registered in the container.`);
-    this.name = "ModuleNotRegisteredError";
+class BaseError extends Error {
+  constructor(msg: string, name: string) {
+    super(msg);
+    this.name = name;
   }
 }
 
-export class ProviderNotFoundError extends Error {
-  constructor(token: string, moduleName: string) {
+export class ModuleNotRegisteredError extends BaseError {
+  constructor(m: string) {
     super(
-      `Provider not found for token "${token}" in module "${moduleName}" or its imports.`,
+      `Module "${m}" is not registered in the container.`,
+      "ModuleNotRegisteredError",
     );
-    this.name = "ProviderNotFoundError";
   }
 }
 
-export class ModuleDecoratorMissingError extends Error {
-  constructor(moduleName: string) {
-    super(`Module ${moduleName} does not have the @RgModule decorator`);
-    this.name = "ModuleDecoratorMissingError";
+export class ProviderNotFoundError extends BaseError {
+  constructor(t: string, m: string) {
+    super(
+      `Provider not found for token "${t}" in module "${m}" or its imports.`,
+      "ProviderNotFoundError",
+    );
   }
 }
 
-export class InvalidProviderError extends Error {
-  constructor(moduleName: string) {
-    super(`Invalid provider definition registered in module ${moduleName}`);
-    this.name = "InvalidProviderError";
+export class ModuleDecoratorMissingError extends BaseError {
+  constructor(m: string) {
+    super(
+      `Module ${m} does not have the @RgModule decorator`,
+      "ModuleDecoratorMissingError",
+    );
   }
 }
 
-export class SettingsNotInitializedError extends Error {
+export class InvalidProviderError extends BaseError {
+  constructor(m: string) {
+    super(
+      `Invalid provider definition registered in module ${m}`,
+      "InvalidProviderError",
+    );
+  }
+}
+
+export class SettingsNotInitializedError extends BaseError {
   constructor() {
-    super("App settings cache has not been initialized.");
-    this.name = "SettingsNotInitializedError";
+    super(
+      "App settings cache has not been initialized.",
+      "SettingsNotInitializedError",
+    );
   }
 }
