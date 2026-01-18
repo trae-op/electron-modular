@@ -1,10 +1,14 @@
 {
   "name": "@_traeop_/electron-modular",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Core module system, DI container, IPC handlers, and window utilities for Electron main process.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trae-op/electron-modular.git"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
