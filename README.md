@@ -36,13 +36,13 @@ Install with your package manager:
 
 ```bash
 # npm
-npm install @_traeop_/electron-modular
+npm install @devisfuture/electron-modular
 
 # yarn
-yarn add @_traeop_/electron-modular
+yarn add @devisfuture/electron-modular
 
 # pnpm
-pnpm add @_traeop_/electron-modular
+pnpm add @devisfuture/electron-modular
 ```
 
 Peer dependency:
@@ -74,7 +74,7 @@ Initialize the framework and bootstrap all modules:
 
 ```typescript
 import { app } from "electron";
-import { initSettings, bootstrapModules } from "@_traeop_/electron-modular";
+import { initSettings, bootstrapModules } from "@devisfuture/electron-modular";
 import { UserModule } from "./user/module.js";
 import { ResourcesModule } from "./resources/module.js";
 
@@ -123,7 +123,7 @@ Import a module and directly inject its exported service.
 #### Module Definition `user/module.ts`
 
 ```typescript
-import { RgModule } from "@_traeop_/electron-modular";
+import { RgModule } from "@devisfuture/electron-modular";
 import { RestApiModule } from "../rest-api/module.js";
 import { UserService } from "./service.js";
 import { UserIpc } from "./ipc.js";
@@ -140,7 +140,7 @@ export class UserModule {}
 #### Service Implementation `user/service.ts`
 
 ```typescript
-import { Injectable } from "@_traeop_/electron-modular";
+import { Injectable } from "@devisfuture/electron-modular";
 import { RestApiService } from "../rest-api/service.js";
 
 @Injectable()
@@ -198,7 +198,7 @@ export type TUserRestApiProvider = {
 #### Module Definition `user/module.ts`
 
 ```typescript
-import { RgModule } from "@_traeop_/electron-modular";
+import { RgModule } from "@devisfuture/electron-modular";
 import { RestApiModule } from "../rest-api/module.js";
 import { RestApiService } from "../rest-api/service.js";
 import { UserService } from "./service.js";
@@ -268,7 +268,7 @@ import {
   IpcHandler,
   TIpcHandlerInterface,
   TParamOnInit,
-} from "@_traeop_/electron-modular";
+} from "@devisfuture/electron-modular";
 import { UserService } from "./service.js";
 
 @IpcHandler()
@@ -293,7 +293,7 @@ export class UserIpc implements TIpcHandlerInterface {
 Manage BrowserWindow lifecycle and configuration.
 
 ```typescript
-import { WindowManager } from "@_traeop_/electron-modular";
+import { WindowManager } from "@devisfuture/electron-modular";
 import type { TWindowManager } from "../types.js";
 
 @WindowManager<TWindows["userProfile"]>({
@@ -518,7 +518,7 @@ Destroys all cached windows.
 
 ```typescript
 ...
-import { destroyWindows } from "@_traeop_/electron-modular";
+import { destroyWindows } from "@devisfuture/electron-modular";
 ...
 
 app.on("before-quit", () => {
