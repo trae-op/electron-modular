@@ -266,6 +266,7 @@ export class UserService {
 Handle communication between main and renderer processes.
 
 ```typescript
+import { ipcMain, type IpcMainEvent } from "electron";
 import {
   IpcHandler,
   TIpcHandlerInterface,
@@ -280,7 +281,7 @@ export class UserIpc implements TIpcHandlerInterface {
   async onInit({ getWindow }: TParamOnInit<TWindows["main"]>) {
     const mainWindow = getWindow("window:main");
 
-    ipcMainOn("user:fetch", async (event, userId: string) => {
+    ipcMain.on("user:fetch", (event: IpcMainEvent, userId: string) => {
       const user = await this.userService.byId(userId);
       event.reply("user:fetch:response", user);
     });
