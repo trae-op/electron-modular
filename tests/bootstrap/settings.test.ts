@@ -8,7 +8,7 @@ import type { TSettings } from "../../src/@core/bootstrap/settings.js";
 
 describe("Settings", () => {
   const mockSettings: TSettings = {
-    baseRestApi: "https://api.example.com",
+    cspConnectSources: ["https://api.example.com"],
     localhostPort: "3000",
     folders: {
       distRenderer: "dist-renderer",
@@ -26,13 +26,13 @@ describe("Settings", () => {
 
     it("should overwrite previous settings", () => {
       const settings1: TSettings = {
-        baseRestApi: "https://api1.com",
+        cspConnectSources: ["https://api1.com"],
         localhostPort: "3001",
         folders: { distRenderer: "dist1", distMain: "main1" },
       };
 
       const settings2: TSettings = {
-        baseRestApi: "https://api2.com",
+        cspConnectSources: ["https://api2.com"],
         localhostPort: "3002",
         folders: { distRenderer: "dist2", distMain: "main2" },
       };
@@ -46,7 +46,10 @@ describe("Settings", () => {
 
     it("should handle complete settings object", () => {
       const completeSettings: TSettings = {
-        baseRestApi: "https://prod-api.example.com",
+        cspConnectSources: [
+          "https://prod-api.example.com",
+          "wss://websocket.example.com",
+        ],
         localhostPort: "5173",
         folders: {
           distRenderer: "build/renderer",
@@ -57,7 +60,10 @@ describe("Settings", () => {
       initSettings(completeSettings);
       const settings = getSettings();
 
-      expect(settings.baseRestApi).toBe("https://prod-api.example.com");
+      expect(settings.cspConnectSources).toEqual([
+        "https://prod-api.example.com",
+        "wss://websocket.example.com",
+      ]);
       expect(settings.localhostPort).toBe("5173");
       expect(settings.folders.distRenderer).toBe("build/renderer");
       expect(settings.folders.distMain).toBe("build/main");
@@ -84,7 +90,9 @@ describe("Settings", () => {
       const settings = getSettings();
 
       expect(settings).toBeDefined();
-      expect(settings.baseRestApi).toBe(mockSettings.baseRestApi);
+      expect(settings.cspConnectSources).toEqual(
+        mockSettings.cspConnectSources,
+      );
       expect(settings.localhostPort).toBe(mockSettings.localhostPort);
       expect(settings.folders).toEqual(mockSettings.folders);
     });
@@ -103,7 +111,6 @@ describe("Settings", () => {
 
       const settings = getSettings();
 
-      expect(settings).toHaveProperty("baseRestApi");
       expect(settings).toHaveProperty("localhostPort");
       expect(settings).toHaveProperty("folders");
       expect(settings.folders).toHaveProperty("distRenderer");
@@ -114,7 +121,7 @@ describe("Settings", () => {
   describe("Settings Integration", () => {
     it("should maintain settings across different modules", () => {
       const testSettings: TSettings = {
-        baseRestApi: "https://test-api.com",
+        cspConnectSources: ["https://test-api.com"],
         localhostPort: "4000",
         folders: {
           distRenderer: "test-renderer",
@@ -129,12 +136,14 @@ describe("Settings", () => {
       const settings2 = getSettings();
 
       expect(settings1).toBe(settings2);
-      expect(settings1.baseRestApi).toBe(testSettings.baseRestApi);
+      expect(settings1.cspConnectSources).toEqual(
+        testSettings.cspConnectSources,
+      );
     });
 
     it("should handle folder paths correctly", () => {
       const settingsWithPaths: TSettings = {
-        baseRestApi: "https://api.example.com",
+        cspConnectSources: ["https://api.example.com"],
         localhostPort: "3000",
         folders: {
           distRenderer: "build/app/renderer",
@@ -157,9 +166,13 @@ describe("Settings", () => {
       expect(settings.localhostPort).toBe("3000");
     });
 
-    it("should handle API URL correctly", () => {
+    it("should handle CSP sources correctly", () => {
       const settingsWithUrl: TSettings = {
-        baseRestApi: "https://api.production.example.com/v1",
+        cspConnectSources: [
+          "https://api.production.example.com/v1",
+          "wss://websocket.production.example.com",
+          "https://cdn.example.com",
+        ],
         localhostPort: "8080",
         folders: {
           distRenderer: "dist-renderer",
@@ -170,8 +183,27 @@ describe("Settings", () => {
       initSettings(settingsWithUrl);
       const settings = getSettings();
 
-      expect(settings.baseRestApi).toContain("https://");
-      expect(settings.baseRestApi).toContain("api.production.example.com");
+      expect(settings.cspConnectSources).toHaveLength(3);
+      expect(settings.cspConnectSources?.[0]).toContain("https://");
+      expect(settings.cspConnectSources).toContain(
+        "wss://websocket.production.example.com",
+      );
+    });
+
+    it("should handle optional cspConnectSources", () => {
+      const settingsWithoutCsp: TSettings = {
+        localhostPort: "3000",
+        folders: {
+          distRenderer: "dist-renderer",
+          distMain: "dist-main",
+        },
+      };
+
+      initSettings(settingsWithoutCsp);
+      const settings = getSettings();
+
+      expect(settings.cspConnectSources).toBeUndefined();
+      expect(settings.localhostPort).toBe("3000");
     });
   });
 });
