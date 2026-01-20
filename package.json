@@ -47,7 +47,20 @@
     "ipc",
     "windows",
     "decorators",
-    "container"
+    "dependency-injection",
+    "modular-architecture",
+    "di-container",
+    "inversion-of-control",
+    "decorator-pattern",
+    "main-process",
+    "renderer-process",
+    "esm",
+    "reflect-metadata",
+    "lifecycle-hooks",
+    "provider-pattern",
+    "electron-node",
+    "electron-modules",
+    "electron-architecture"
   ],
   "license": "MIT"
 }
