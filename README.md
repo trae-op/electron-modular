@@ -371,6 +371,80 @@ Important implementation notes ⚠️
 - Handlers are attached per BrowserWindow instance and cleaned up automatically when the window is closed, so you don't have to manually remove listeners.
 - The same instance and set of handlers are tracked in a WeakMap internally; re-attaching the same `windowInstance` will not duplicate listeners.
 
+### Opening windows with URL params (dynamic routes) 🔗
+
+If your renderer uses dynamic routes (for example React Router) you can open a window that targets a specific route by passing a `hash` to `create`. The `hash` is merged with the window manager's defaults and can carry route segments or parameters (for example `window:items/<id>`).
+
+Renderer process
+
+```tsx
+<Route path="/window:items/:id" element={<ItemWindow />} />
+```
+
+Renderer (inside `ItemWindow`)
+
+```tsx
+import { useParams } from "react-router-dom";
+
+const ItemWindow = () => {
+  const { id } = useParams<{ id?: string }>();
+
+  if (!id) return null;
+
+  return <span>item id: {id}</span>;
+};
+
+export default ItemWindow;
+```
+
+Main process
+
+```typescript
+import { ipcMain, type IpcMainEvent } from "electron";
+import { IpcHandler, type TParamOnInit } from "@devisfuture/electron-modular";
+
+@IpcHandler()
+export class ItemsIpc {
+  constructor() {}
+
+  onInit({ getWindow }: TParamOnInit<TWindows["items"]>): void {
+    const window = getWindow("window:items");
+
+    ipcMain.on(
+      "itemWindow",
+      async (_: IpcMainEvent, payload: { id?: string }) => {
+        if (payload.id === undefined) {
+          return;
+        }
+
+        await window.create({
+          hash: `window:items/${payload.id}`,
+        });
+      },
+    );
+  }
+}
+```
+
+Default manager example
+
+```ts
+@WindowManager<TWindows['items']>({
+  hash: 'window:items',
+  isCache: true,
+  options: {
+    width: 350,
+    height: 300,
+  },
+})
+```
+
+Notes:
+
+- `await window.create({...})` merges the provided options with the manager's default `options`.
+- When `isCache: true`, `getWindow('window:items')` returns the cached manager and `create` will reuse (or re-create) the BrowserWindow as implemented by the manager.
+- Use a unique `hash` per route instance (for example `window:items/<id>`), so the renderer can read the route from the window URL and navigate to the correct route when the window loads.
+
 ---
 
 ## TypeScript types — `TWindows["myWindow"]`
