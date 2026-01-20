@@ -38,10 +38,6 @@ export const createWindow = <N extends string>({
     `/${settings.folders.distMain}/preload.cjs`,
   );
 
-  if (!settings.baseRestApi)
-    console.warn(
-      'Warning: You have to add an environment variable called "process.env.BASE_REST_API"!',
-    );
   if (!settings.localhostPort)
     console.warn(
       'Warning: You have to add an environment variable called "process.env.LOCALHOST_ELECTRON_SERVER_PORT"!',
@@ -65,7 +61,8 @@ export const createWindow = <N extends string>({
     },
   });
 
-  if (isCache && !loadURL) setupCSP(settings.baseRestApi, isDev);
+  if (isCache && !loadURL && settings.baseRestApi)
+    setupCSP(settings.baseRestApi, isDev);
 
   if (loadURL) {
     win.loadURL(loadURL);

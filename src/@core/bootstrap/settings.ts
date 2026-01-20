@@ -6,7 +6,7 @@ export type TFolderSettings = {
 };
 
 export type TSettings = {
-  baseRestApi: string;
+  baseRestApi?: string;
   localhostPort: string;
   folders: TFolderSettings;
 };
