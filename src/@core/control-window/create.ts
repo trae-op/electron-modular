@@ -5,9 +5,10 @@ import { cacheWindows } from "./cache.js";
 import { getWindow } from "./receive.js";
 import { getSettings } from "../bootstrap/settings.js";
 
-const setupCSP = (base: string, dev: boolean): void => {
+const setupCSP = (sources: string[], dev: boolean): void => {
+  const connectSrc = sources.length > 0 ? ` ${sources.join(" ")}` : "";
   const csp =
-    `default-src 'self'; connect-src 'self' ${base}; img-src * data:; style-src 'self' 'unsafe-inline'; script-src 'self' ${dev ? "'unsafe-inline'" : ""};`
+    `default-src 'self'; connect-src 'self'${connectSrc}; img-src * data:; style-src 'self' 'unsafe-inline'; script-src 'self' ${dev ? "'unsafe-inline'" : ""};`
       .replace(/\s{2,}/g, " ")
       .trim();
   session.defaultSession.webRequest.onHeadersReceived((d, cb) => {
@@ -61,8 +62,8 @@ export const createWindow = <N extends string>({
     },
   });
 
-  if (isCache && !loadURL && settings.baseRestApi)
-    setupCSP(settings.baseRestApi, isDev);
+  if (isCache && !loadURL && settings.cspConnectSources)
+    setupCSP(settings.cspConnectSources, isDev);
 
   if (loadURL) {
     win.loadURL(loadURL);

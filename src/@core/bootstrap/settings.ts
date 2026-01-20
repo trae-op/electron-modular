@@ -6,7 +6,7 @@ export type TFolderSettings = {
 };
 
 export type TSettings = {
-  baseRestApi?: string;
+  cspConnectSources?: string[];
   localhostPort: string;
   folders: TFolderSettings;
 };

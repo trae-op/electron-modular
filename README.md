@@ -81,7 +81,9 @@ import { UserModule } from "./user/module.js";
 import { ResourcesModule } from "./resources/module.js";
 
 initSettings({
-  baseRestApi: process.env.BASE_REST_API ?? "",
+  cspConnectSources: process.env.BASE_REST_API
+    ? [process.env.BASE_REST_API]
+    : [],
   localhostPort: process.env.LOCALHOST_ELECTRON_SERVER_PORT ?? "",
   folders: {
     distRenderer: "dist-renderer",
@@ -557,19 +559,29 @@ Initializes framework configuration.
 
 **Parameters:**
 
-- `baseRestApi: string` - Base REST API URL
+- `cspConnectSources?: string[]` - Optional array of origins to include in the `connect-src` directive of the generated Content-Security-Policy header.
 - `localhostPort: string` - Development server port
 - `folders: { distRenderer: string; distMain: string }` - Build output folders
 
 ```typescript
 initSettings({
-  baseRestApi: process.env.BASE_REST_API ?? "",
+  cspConnectSources: [
+    "https://api.example.com",
+    "https://cdn.example.com",
+    "wss://websocket.example.com",
+  ],
   localhostPort: process.env.LOCALHOST_ELECTRON_SERVER_PORT ?? "",
   folders: {
     distRenderer: "dist-renderer",
     distMain: "dist-main",
   },
 });
+```
+
+> Note: When a cached window is created the framework will set a Content-Security-Policy header for renderer responses. The `connect-src` directive will include `'self'` plus any entries from `cspConnectSources`. For example:
+
+```
+connect-src 'self' https://api.example.com https://cdn.example.com wss://websocket.example.com;
 ```
 
 #### `bootstrapModules(modules[])`
@@ -782,7 +794,9 @@ export class MyWindow implements TWindowManager {}
 
 ```typescript
 initSettings({
-  baseRestApi: process.env.BASE_REST_API ?? "",
+  cspConnectSources: process.env.BASE_REST_API
+    ? [process.env.BASE_REST_API]
+    : [],
   localhostPort: process.env.LOCALHOST_ELECTRON_SERVER_PORT ?? "",
   folders: { distRenderer: "dist-renderer", distMain: "dist-main" },
 });
