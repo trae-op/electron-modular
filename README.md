@@ -1,5 +1,9 @@
 # Package Documentation
 
+<p align="center">
+  <img src="./illustration.png" alt="electron-modular illustration" width="640" />
+</p>
+
 [![npm version](https://img.shields.io/npm/v/@devisfuture/electron-modular.svg)](https://www.npmjs.com/package/@devisfuture/electron-modular) [![Downloads](https://img.shields.io/npm/dm/@devisfuture/electron-modular.svg)](https://www.npmjs.com/package/@devisfuture/electron-modular) [![Build](https://img.shields.io/github/actions/workflow/status/trae-op/electron-modular/ci.yml?branch=main)](https://github.com/trae-op/electron-modular/actions/workflows/ci.yml) [![Coverage](https://img.shields.io/codecov/c/github/trae-op/electron-modular/main)](https://codecov.io/gh/trae-op/electron-modular) [![Bundle size](https://img.shields.io/bundlephobia/minzip/@devisfuture/electron-modular)](https://bundlephobia.com/package/@devisfuture/electron-modular) [![License](https://img.shields.io/npm/l/@devisfuture/electron-modular.svg)](https://github.com/trae-op/electron-modular/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-%233178C6.svg?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
 ## Overview
