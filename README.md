@@ -32,6 +32,12 @@ Instead of wrestling with service initialization order or managing global state,
 
 ---
 
+## Example App
+
+A small example app demonstrating how to use this package is available at [trae-op/quick-start_react_electron-modular](https://github.com/trae-op/quick-start_react_electron-modular). It contains a minimal React + Electron project that shows module registration, IPC handlers and window managers in action — check its README for setup and run instructions.
+
+---
+
 ## Installation
 
 Install with your package manager:
@@ -108,10 +114,6 @@ app.on("ready", async () => {
 ```
 
 ---
-
-## Example App
-
-A small example app demonstrating how to use this package is available at [trae-op/quick-start_react_electron-modular](https://github.com/trae-op/quick-start_react_electron-modular). It contains a minimal React + Electron project that shows module registration, IPC handlers and window managers in action — check its README for setup and run instructions.
 
 ## Module Structure
 
