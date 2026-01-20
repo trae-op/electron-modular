@@ -66,6 +66,13 @@ TypeScript setup:
 
 > Tip: This package is published as ESM. When importing local modules, use `.js` extensions in runtime imports, e.g. `import { UserModule } from "./user/module.js"`.
 
+## Folders (build outputs)
+
+The `folders` option in `initSettings` tells the framework where your build artifacts live:
+
+- `distRenderer` — the build output folder for your renderer (web) bundle (e.g. Vite/webpack output).
+- `distMain` — the build output folder for your main process bundle (compiled ESM files).
+
 ---
 
 ## Quick Start
@@ -179,7 +186,7 @@ export class UserService {
 
 ### Approach 2: Provider Pattern (Advanced)
 
-Use `provide` and `useFactory` to expose only necessary interface.
+Use `provide` and `useFactory` to expose only necessary types.
 
 #### tokens.ts
 
@@ -666,8 +673,6 @@ my-feature/
 
 ### 1. Use Providers for Cross-Module Communication
 
-✅ **Good:**
-
 ```typescript
 {
   provide: AUTH_PROVIDER,
@@ -679,18 +684,9 @@ my-feature/
 }
 ```
 
-❌ **Bad:**
-
-```typescript
-// Don't export entire service
-exports: [AuthService];
-```
-
 ### 2. Keep Services Focused
 
 Each service should have a single responsibility.
-
-✅ **Good:**
 
 ```typescript
 @Injectable()
@@ -705,8 +701,6 @@ export class CacheWindowsService {
 ```
 
 ### 3. Use Tokens for All Cross-Module Dependencies
-
-✅ **Good:**
 
 ```typescript
 export const RESOURCES_REST_API_PROVIDER = Symbol("RESOURCES_REST_API_PROVIDER");
