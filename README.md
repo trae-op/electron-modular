@@ -342,6 +342,30 @@ export class UserWindow implements TWindowManager {
 }
 ```
 
+### Preload script — default behavior 🔧
+
+By default the framework sets the BrowserWindow's `webPreferences.preload` to the package `preload` file located in the `distMain` folder you configured via `initSettings`. Concretely this resolves to `<app path>/<distMain>/preload.cjs` (production), and the development build is resolved appropriately when running in dev mode.
+
+By default the source `preload` file should be placed at `src/main/preload.cts` in your project; it will be compiled/bundled to `preload.cjs` in your configured `distMain` folder during the build step.
+
+If you need a custom preload for a specific window, set `options.webPreferences.preload` on the `@WindowManager` config — this will override the framework default:
+
+```ts
+@WindowManager<TWindows["userProfile"]>({
+  hash: "window:user-profile",
+  isCache: true,
+  options: {
+    width: 600,
+    height: 400,
+    webPreferences: {
+      preload: '/absolute/or/relative/path/to/custom-preload.js'
+    }
+  },
+})
+```
+
+> Note: the custom `preload` you provide will override the default `preload` the package injects.
+
 ### Lifecycle Hooks (Window & WebContents events) ✅
 
 The window manager supports lifecycle hooks by naming methods on your class following a simple convention:
