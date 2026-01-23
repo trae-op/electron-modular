@@ -40,6 +40,8 @@ Instead of wrestling with service initialization order or managing global state,
 
 A small example app demonstrating how to use this package is available at [trae-op/quick-start_react_electron-modular](https://github.com/trae-op/quick-start_react_electron-modular). It contains a minimal React + Electron project that shows module registration, IPC handlers and window managers in action — check its README for setup and run instructions.
 
+For a full starter application with complete settings and built-in features, see the boilerplate at [trae-op/electron-modular-boilerplate](https://github.com/trae-op/electron-modular-boilerplate). This repo contains a ready-to-use React + Electron starter demonstrating advanced integrations (OAuth with Google & GitHub, auto-update support, authentication flows), build and dev scripts, and sensible defaults to help you get started quickly — see its README for details and setup instructions.
+
 ---
 
 ## Installation
