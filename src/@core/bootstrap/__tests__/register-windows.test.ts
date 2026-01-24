@@ -23,7 +23,6 @@ describe("registerWindows", () => {
 
   it("should register window with hash", async () => {
     @WindowManager({
-      name: "main",
       hash: "main-window",
       options: { width: 800, height: 600 },
     })
@@ -43,14 +42,12 @@ describe("registerWindows", () => {
 
   it("should register multiple windows", async () => {
     @WindowManager({
-      name: "main",
       hash: "main-window",
       options: { width: 800 },
     })
     class MainWindow {}
 
     @WindowManager({
-      name: "settings",
       hash: "settings-window",
       options: { width: 600 },
     })
@@ -74,7 +71,6 @@ describe("registerWindows", () => {
 
   it("should not register window without hash", async () => {
     @WindowManager({
-      name: "no-hash",
       options: { width: 800 },
     })
     class NoHashWindow {}

@@ -3,6 +3,7 @@ import { initializeModule } from "../initialize-module.js";
 import { container } from "../../container.js";
 import { RgModule } from "../../decorators/rg-module.js";
 import { Injectable } from "../../decorators/injectable.js";
+import type { TParamOnInit } from "../../types/ipc-handler.js";
 import "reflect-metadata/lite";
 
 describe("initializeModule", () => {
@@ -94,7 +95,9 @@ describe("initializeModule", () => {
     @Injectable()
     class Service {}
 
-    class Handler {}
+    class Handler {
+      onInit(data: TParamOnInit) {}
+    }
 
     class Window {}
 

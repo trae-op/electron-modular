@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { RgModule } from "../rg-module.js";
+import type { TParamOnInit } from "../../types/ipc-handler.js";
 import "reflect-metadata/lite";
 
 describe("RgModule decorator", () => {
@@ -55,8 +56,12 @@ describe("RgModule decorator", () => {
   });
 
   it("should store IPC handlers", () => {
-    class Handler1 {}
-    class Handler2 {}
+    class Handler1 {
+      onInit(data: TParamOnInit) {}
+    }
+    class Handler2 {
+      onInit(data: TParamOnInit) {}
+    }
 
     @RgModule({
       ipc: [Handler1, Handler2],
@@ -91,7 +96,9 @@ describe("RgModule decorator", () => {
   it("should work with complete metadata", () => {
     class ImportModule {}
     class Provider1 {}
-    class Handler1 {}
+    class Handler1 {
+      onInit(data: TParamOnInit) {}
+    }
     class Window1 {}
     const EXPORT_TOKEN = Symbol("export");
 

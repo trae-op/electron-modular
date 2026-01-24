@@ -60,6 +60,7 @@ describe("Inject decorator", () => {
       const TOKEN = Symbol("test-token");
 
       class TestService {
+        // @ts-expect-error - Testing that property decorators are ignored (Inject is a ParameterDecorator)
         @Inject(TOKEN)
         public property: any;
       }

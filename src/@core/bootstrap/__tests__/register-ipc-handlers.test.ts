@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { registerIpcHandlers } from "../register-ipc-handlers.js";
 import { container } from "../../container.js";
+import type { TParamOnInit } from "../../types/ipc-handler.js";
 import "reflect-metadata/lite";
 
 describe("registerIpcHandlers", () => {
@@ -20,7 +21,9 @@ describe("registerIpcHandlers", () => {
   });
 
   it("should register IPC handler class", async () => {
-    class TestHandler {}
+    class TestHandler {
+      onInit(data: TParamOnInit) {}
+    }
 
     const metadata = {
       ipc: [TestHandler],
@@ -33,9 +36,15 @@ describe("registerIpcHandlers", () => {
   });
 
   it("should register multiple IPC handlers", async () => {
-    class Handler1 {}
-    class Handler2 {}
-    class Handler3 {}
+    class Handler1 {
+      onInit(data: TParamOnInit) {}
+    }
+    class Handler2 {
+      onInit(data: TParamOnInit) {}
+    }
+    class Handler3 {
+      onInit(data: TParamOnInit) {}
+    }
 
     const metadata = {
       ipc: [Handler1, Handler2, Handler3],
@@ -63,6 +72,7 @@ describe("registerIpcHandlers", () => {
 
     class HandlerWithDeps {
       constructor(public dep: Dependency) {}
+      onInit(data: TParamOnInit) {}
     }
 
     const metadata = {
