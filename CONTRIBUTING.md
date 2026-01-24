@@ -13,10 +13,14 @@ Thank you for your interest in contributing to electron-modular! We welcome cont
 - [Testing](#testing)
 - [Reporting Bugs](#reporting-bugs)
 - [Suggesting Enhancements](#suggesting-enhancements)
+- [Security](#security)
+- [Questions & Support](#questions-&-support)
 
 ## Code of Conduct
 
 This project adheres to a Code of Conduct. By participating, you are expected to uphold this code.
+
+Read the Code of Conduct: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
 
 ## Getting Started
 
@@ -141,9 +145,14 @@ npm run test:coverage
 - Update README.md for user-facing changes
 - Add examples for new features
 
-## Questions?
+## Security
 
-Feel free to open an issue with the `question` label or reach out to maintainers.
+Please do not report security vulnerabilities publicly. Follow the policy in [SECURITY.md](SECURITY.md).
+
+## Questions & Support
+
+- 💬 GitHub Discussions for questions
+- 🐛 GitHub Issues only for bugs/features
 
 ## License
 
