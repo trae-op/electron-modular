@@ -1,0 +1,34 @@
+# Source files
+src/
+
+# Tests
+**/__tests__/
+**/__mocks__/
+*.test.ts
+*.test.js
+*.spec.ts
+*.spec.js
+
+# Config files
+tsconfig.json
+tsconfig.tests.json
+vitest.config.ts
+.gitignore
+.github/
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Coverage
+coverage/
+
+# Development
+.vscode/
+.DS_Store
+illustration.png
+
+# Logs
+*.log
+npm-debug.log*
