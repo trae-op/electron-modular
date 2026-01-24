@@ -1,6 +1,6 @@
 {
   "name": "@devisfuture/electron-modular",
-  "version": "1.1.11",
+  "version": "1.1.12",
   "description": "Core module system, DI container, IPC handlers, and window utilities for Electron main process.",
   "type": "module",
   "main": "./dist/index.js",
