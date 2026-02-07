@@ -238,6 +238,7 @@ import type { TUserRestApiProvider } from "./types.js";
 @RgModule({
   imports: [RestApiModule],
   ipc: [UserIpc],
+  windows: [UserWindow],
   providers: [
     UserService,
     {
