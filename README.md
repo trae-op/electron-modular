@@ -232,6 +232,7 @@ import { RestApiModule } from "../rest-api/module.js";
 import { RestApiService } from "../rest-api/service.js";
 import { UserService } from "./service.js";
 import { UserIpc } from "./ipc.js";
+import { UserWindow } from "./window.js";
 import { USER_REST_API_PROVIDER } from "./tokens.js";
 import type { TUserRestApiProvider } from "./types.js";
 
