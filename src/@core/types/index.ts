@@ -1,3 +1,11 @@
+/**
+ * @fileoverview Central export point for all type definitions.
+ *
+ * Re-exports all types used in the dependency injection and window management system.
+ *
+ * @module @core/types
+ */
+
 export type { Constructor } from "./constructor.js";
 export type { TIpcHandlerInterface, TParamOnInit } from "./ipc-handler.js";
 export type { RgModuleMetadata } from "./module-metadata.js";
