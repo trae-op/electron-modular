@@ -9,6 +9,7 @@
 import type { TIpcHandlerInterface } from "./ipc-handler.js";
 import type { Constructor } from "./constructor.js";
 import type { TProvider, TProviderToken } from "./provider.js";
+import type { TLazyConfig } from "./lazy.js";
 
 /**
  * Metadata for a module decorated with @RgModule.
@@ -25,4 +26,5 @@ export type RgModuleMetadata = {
   windows?: Constructor[];
   providers?: TProvider[];
   exports?: TProviderToken[];
+  lazy?: TLazyConfig;
 };

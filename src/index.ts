@@ -9,6 +9,7 @@ export * from "./@core/bootstrap/register-imports.js";
 export * from "./@core/bootstrap/register-ipc-handlers.js";
 export * from "./@core/bootstrap/register-providers.js";
 export * from "./@core/bootstrap/register-windows.js";
+export * from "./@core/bootstrap/register-lazy-module.js";
 export * from "./@core/bootstrap/settings.js";
 
 // Initialize IPC

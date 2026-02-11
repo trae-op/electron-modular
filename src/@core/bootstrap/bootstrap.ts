@@ -18,6 +18,7 @@ import { instantiateModule } from "./instantiate-module.js";
 import { initializeModule } from "./initialize-module.js";
 import { container } from "../container.js";
 import { initializeIpcHandlers } from "./initialize-ipc/handlers.js";
+import { registerLazyModule } from "./register-lazy-module.js";
 
 /**
  * Bootstraps an array of modules in the application.
@@ -48,6 +49,11 @@ export const bootstrapModules = async (
 
     if (!metadata) {
       throw new ModuleDecoratorMissingError(moduleClass.name);
+    }
+
+    if (metadata.lazy?.enabled) {
+      registerLazyModule(moduleClass, metadata);
+      continue;
     }
 
     await initializeModule(moduleClass, metadata);
