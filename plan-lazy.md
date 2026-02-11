@@ -289,7 +289,7 @@ electron.contextBridge.exposeInMainWorld("electron", {
 ```
 
 **The renderer process.**
-The file `App.tsx`
+The file `App.tsx`:
 
 ```typescript
 import { useEffect, useCallback } from "react";
