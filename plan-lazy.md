@@ -212,3 +212,106 @@ This implementation plan ensures:
 - ✅ Good developer experience
 
 The AI agent should analyze the existing codebase structure and implement lazy loading by **adding new code** rather than **modifying existing working code**.
+
+## The result when used should be approximately as follows
+
+**The main process.**
+The file `main.ts`:
+
+```typescript
+import { app } from "electron";
+import { bootstrapModules, ... } from "@devisfuture/electron-modular";
+
+......
+
+app.on("ready", async () => {
+  await bootstrapModules([
+    UserModule,
+    AnalyticsModule, // lazy module
+  ]);
+});
+```
+
+The file `module.ts`:
+
+```typescript
+import { RgModule } from "@devisfuture/electron-modular";
+import { AnalyticsService } from "./service.js";
+import { RestApiService } from "../rest-api/service.js";
+import { REST_API_PROVIDER } from "./tokens.js";
+import { AnalyticsIpc } from "./ipc.js";
+import { AnalyticsWindow } from "./windows.js";
+import type { TAuthProvider, TWordsRestApiProvider } from "./types.js";
+
+......
+
+@RgModule({
+  imports: [RestApiModule],
+  providers: [
+    AnalyticsService,
+    {
+      provide: REST_API_PROVIDER,
+      useFactory: (restApiService: RestApiService): TWordsRestApiProvider => ({
+         get: () => restApiService.get('https://example.com/api/user/1'),
+      }),
+      inject: [RestApiService],
+    },
+  ],
+  ipc: [AnalyticsIpc],
+  windows: [AnalyticsWindow],
+  lazy: {
+    enabled: true,
+    trigger: "analytics",
+  },
+})
+export class AnalyticsModule {}
+```
+
+The file `preload.cts`:
+
+```typescript
+const electron = require("electron");
+
+type TInitAnalyticsModule = {
+  initialized: boolean; // true/false
+  name: string; // name of module 'analytics'
+  error?: {
+    // when something wrong
+    message: string;
+  };
+};
+
+electron.contextBridge.exposeInMainWorld("electron", {
+  invoke: (key: string, payload: any): TInitAnalyticsModule => {
+    return electron.ipcRenderer.invoke(key, payload);
+  },
+});
+```
+
+**The renderer process.**
+The file `App.tsx`
+
+```typescript
+import { useEffect, useCallback } from "react";
+
+....
+
+export const App = () => {
+
+  const initAnalyticsModule = useCallback(async () => {
+    const { initialized, name, error } = await window.electron.invoke("analytics");
+
+    if (initialized && error === undefined) {
+      console.log('Success!', 'Module:', name);
+    } else {
+      console.log('Error!', 'Module:', name, error.message);
+    }
+  }, []);
+
+  useEffect(() => {
+    initAnalyticsModule();
+  }, [initAnalyticsModule]);
+
+  return <>Home</>;
+};
+```
