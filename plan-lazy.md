@@ -272,7 +272,7 @@ The file `preload.cts`:
 ```typescript
 const electron = require("electron");
 
-type TInitAnalyticsModule = {
+type TInitDataLazy = {
   initialized: boolean; // true/false
   name: string; // name of module 'analytics'
   error?: {
@@ -282,7 +282,7 @@ type TInitAnalyticsModule = {
 };
 
 electron.contextBridge.exposeInMainWorld("electron", {
-  invoke: (key: string, payload: any): TInitAnalyticsModule => {
+  invoke: (key: string, payload: any): TInitDataLazy => {
     return electron.ipcRenderer.invoke(key, payload);
   },
 });
