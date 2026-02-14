@@ -116,7 +116,7 @@ export const initializeIpcHandlers = async (
     );
 
     if (ipcInstance?.onInit) {
-      ipcInstance.onInit({ getWindow });
+      await ipcInstance.onInit({ getWindow });
     }
   }
 };

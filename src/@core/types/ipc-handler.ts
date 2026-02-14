@@ -25,5 +25,5 @@ export type TParamOnInit<N = string> = {
  * a getWindow function to access window factories.
  */
 export type TIpcHandlerInterface = {
-  onInit: (data: TParamOnInit) => void;
+  onInit?: (data: TParamOnInit) => void | Promise<void>;
 };

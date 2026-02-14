@@ -12,6 +12,34 @@
 - Code of Conduct: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
 - Security policy: [SECURITY.md](SECURITY.md)
 
+## Navigation
+
+- [Overview](#overview) — High-level summary and goals.
+  - [What It Solves](#what-it-solves) — Practical pain points addressed.
+  - [What You Get](#what-you-get) — Core capabilities provided.
+  - [Key Features](#key-features) — Quick feature checklist.
+- [Example App](#example-app) — Starter/example repositories.
+- [Installation](#installation) — Install and peer dependency notes.
+- [Folders (build outputs)](#folders-build-outputs) — Build output locations.
+- [Quick Start](#quick-start) — Minimal bootstrap example for `main.ts`.
+- [Module Structure](#module-structure) — Recommended file layout for a feature module.
+- [Two Approaches to Using Modules](#two-approaches-to-using-modules) — Design choices for module APIs.
+  - [Approach 1: Direct Service Injection](#approach-1-direct-service-injection-simple) — Simple DI usage.
+  - [Approach 2: Provider Pattern](#approach-2-provider-pattern-advanced) — Provider/factory-based contracts.
+- [IPC Handlers](#ipc-handlers) — Organizing main ↔ renderer communication.
+- [Window Managers](#window-managers) — Window lifecycle and helpers.
+  - [Preload script — default behavior](#preload-script--default-behavior-) — Default preload handling.
+  - [Lifecycle Hooks (Window & WebContents events)](#lifecycle-hooks-window--webcontents-events-) — Event hook mapping.
+  - [Opening windows with URL params](#opening-windows-with-url-params-dynamic-routes-) — Route/hash usage.
+- [TypeScript types — TWindows["myWindow"]](#typescript-types--twindowsmywindow) — Typing conventions for windows.
+- [API Reference](#api-reference) — Reference for decorators and core functions.
+  - [Core Decorators](#core-decorators) — `@RgModule`, `@Injectable`, `@Inject`, `@IpcHandler`, `@WindowManager`.
+  - [Core Functions](#core-functions) — `initSettings`, `bootstrapModules`, `getWindow`, `destroyWindows`.
+  - [Lazy Loading modules](#lazy-loading-modules) — Deferred init behavior and constraints.
+  - [Lifecycle Interfaces](#lifecycle-interfaces) — IPC and window interface contracts.
+- [Best Practices](#best-practices) — Recommended development patterns.
+  - [Type Everything](#5-type-everything) — Type-safety guidance and tips.
+
 ## Overview
 
 A lightweight dependency injection container for Electron's main process that brings modular architecture and clean code organization to your desktop applications.
@@ -544,6 +572,7 @@ Defines a module with its dependencies and providers.
 - `ipc?: Class[]` - IPC handler classes
 - `windows?: Class[]` - Window manager classes
 - `exports?: Class[]` - Providers to export
+- `lazy?: { enabled: true; trigger: string }` - Defers module initialization until renderer invokes the trigger channel
 
 #### `@Injectable()`
 
@@ -641,6 +670,110 @@ Bootstraps all modules and initializes the DI container.
 
 ```typescript
 await bootstrapModules([AppModule, AuthModule, ResourcesModule]);
+```
+
+Lazy modules are registered but not initialized during bootstrap. Initialization happens on first `ipcRenderer.invoke(trigger)` from renderer process.
+
+```typescript
+@RgModule({
+  providers: [AnalyticsService],
+  ipc: [AnalyticsIpc],
+  lazy: {
+    enabled: true,
+    trigger: "analytics",
+  },
+})
+export class AnalyticsModule {}
+
+await bootstrapModules([UserModule, AnalyticsModule]);
+// UserModule: initialized immediately
+// AnalyticsModule: initialized on first ipcRenderer.invoke("analytics")
+```
+
+Notes:
+
+- Lazy loading defers runtime initialization work (provider resolution, module instantiation, IPC `onInit`).
+- It does not perform JavaScript code-splitting by itself; module code is still loaded by your app bundle strategy.
+- Each lazy trigger must be unique across modules in the same bootstrap call.
+
+### Lazy Loading modules
+
+Lazy Loading lets you defer module initialization until the renderer explicitly requests it via `ipcRenderer.invoke(trigger)`.
+
+Why it exists:
+
+- Reduces startup work in the main process for modules that are not needed immediately.
+- Improves perceived startup time when some features are rarely used.
+
+When to use it:
+
+- Heavy modules (database connections, expensive service wiring, feature-specific IPC setup).
+- Feature modules opened only after a user action (analytics, advanced settings, reports).
+
+When it usually does not help:
+
+- Modules required at application start (auth bootstrap, app shell wiring, core windows).
+- Very small modules where deferred initialization adds complexity without measurable gain.
+
+Important constraints:
+
+- A lazy module **cannot** declare `exports`.
+- A lazy module can import only eager modules.
+- An eager module cannot import a lazy module.
+
+These constraints guarantee clear module boundaries: lazy modules are activated explicitly, while shared cross-module dependencies stay eager and deterministic.
+
+#### Example: valid lazy module
+
+```typescript
+@RgModule({
+  imports: [DatabaseCoreModule], // eager module
+  providers: [AnalyticsService],
+  ipc: [AnalyticsIpc],
+  lazy: {
+    enabled: true,
+    trigger: "analytics:init",
+  },
+})
+export class AnalyticsModule {}
+
+await bootstrapModules([AppModule, AnalyticsModule]);
+
+// Renderer side:
+await ipcRenderer.invoke("analytics:init");
+```
+
+#### Example: invalid (lazy + exports)
+
+```typescript
+@RgModule({
+  providers: [AnalyticsService],
+  exports: [AnalyticsService], // ❌ not allowed for lazy modules
+  lazy: {
+    enabled: true,
+    trigger: "analytics:init",
+  },
+})
+export class AnalyticsModule {}
+```
+
+#### Example: invalid (eager imports lazy)
+
+```typescript
+@RgModule({
+  providers: [],
+  lazy: {
+    enabled: true,
+    trigger: "database:init",
+  },
+})
+export class DatabaseModule {}
+
+@RgModule({
+  imports: [DatabaseModule], // ❌ eager module cannot import lazy module
+  providers: [ReportsService],
+})
+export class ReportsModule {}
 ```
 
 #### `getWindow<T>(hash)`
@@ -784,6 +917,7 @@ Defines a module.
 - `ipc?: Class[]` - IPC handler classes
 - `windows?: Class[]` - Window manager classes
 - `exports?: Class[]` - Providers to export
+- `lazy?: { enabled: true; trigger: string }` - Defers module initialization until renderer invokes the trigger channel
 
 ### `@Injectable()`
 

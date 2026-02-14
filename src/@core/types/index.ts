@@ -23,3 +23,4 @@ export type {
   TWindowManagerWithHandlers,
 } from "./window-manager.js";
 export type { TMetadataWindow } from "./window-metadata.js";
+export type { TLazyConfig, TLazyModuleResponse } from "./lazy.js";

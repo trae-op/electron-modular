@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { registerImports } from "../register-imports.js";
 import { RgModule } from "../../decorators/rg-module.js";
 import { container } from "../../container.js";
+import { EagerModuleCannotImportLazyModuleError } from "../../errors/index.js";
 import "reflect-metadata/lite";
 
 describe("registerImports", () => {
@@ -10,9 +11,13 @@ describe("registerImports", () => {
   });
 
   it("should return early if no imports in metadata", async () => {
+    class HostModule {}
+
     const metadata = {};
 
-    await expect(registerImports(metadata)).resolves.toBeUndefined();
+    await expect(
+      registerImports(HostModule, metadata),
+    ).resolves.toBeUndefined();
   });
 
   it("should initialize imported module", async () => {
@@ -25,7 +30,7 @@ describe("registerImports", () => {
       imports: [ImportedModule],
     };
 
-    await registerImports(metadata);
+    await registerImports(class HostModule {}, metadata);
 
     expect(container.hasModule(ImportedModule)).toBe(true);
   });
@@ -45,7 +50,7 @@ describe("registerImports", () => {
       imports: [Module1, Module2],
     };
 
-    await registerImports(metadata);
+    await registerImports(class HostModule {}, metadata);
 
     expect(container.hasModule(Module1)).toBe(true);
     expect(container.hasModule(Module2)).toBe(true);
@@ -56,7 +61,9 @@ describe("registerImports", () => {
       imports: [],
     };
 
-    await expect(registerImports(metadata)).resolves.toBeUndefined();
+    await expect(
+      registerImports(class HostModule {}, metadata),
+    ).resolves.toBeUndefined();
   });
 
   it("should skip module without @RgModule decorator", async () => {
@@ -67,7 +74,9 @@ describe("registerImports", () => {
     };
 
     // Should not throw, just skip initialization
-    await expect(registerImports(metadata)).resolves.toBeUndefined();
+    await expect(
+      registerImports(class HostModule {}, metadata),
+    ).resolves.toBeUndefined();
   });
 
   it("should initialize nested imports", async () => {
@@ -86,7 +95,7 @@ describe("registerImports", () => {
       imports: [ParentModule],
     };
 
-    await registerImports(metadata);
+    await registerImports(class HostModule {}, metadata);
 
     expect(container.hasModule(ParentModule)).toBe(true);
     expect(container.hasModule(NestedModule)).toBe(true);
@@ -104,10 +113,29 @@ describe("registerImports", () => {
       imports: [ModuleWithProviders],
     };
 
-    await registerImports(metadata);
+    await registerImports(class HostModule {}, metadata);
 
     expect(container.hasModule(ModuleWithProviders)).toBe(true);
     const provider = container.getProvider(ModuleWithProviders, Service);
     expect(provider).toBe(Service);
+  });
+
+  it("should throw when eager module imports lazy module", async () => {
+    @RgModule({
+      providers: [],
+      lazy: { enabled: true, trigger: "db" },
+    })
+    class LazyModule {}
+
+    class EagerModule {}
+
+    const metadata = {
+      imports: [LazyModule],
+      providers: [],
+    };
+
+    await expect(registerImports(EagerModule, metadata)).rejects.toThrow(
+      EagerModuleCannotImportLazyModuleError,
+    );
   });
 });

@@ -17,6 +17,7 @@ import { registerProviders } from "./register-providers.js";
 import { registerImports } from "./register-imports.js";
 import { registerWindows } from "./register-windows.js";
 import { registerIpcHandlers } from "./register-ipc-handlers.js";
+import { validateLazyConstraints } from "./validate-lazy-constraints.js";
 
 /**
  * Initializes a module by registering all its components in the container.
@@ -37,6 +38,8 @@ export const initializeModule = async (
   moduleClass: Constructor,
   metadata: RgModuleMetadata,
 ): Promise<void> => {
+  validateLazyConstraints(moduleClass, metadata);
+
   const isNewModule = container.addModule(moduleClass, metadata);
   container.setModuleMetadata(moduleClass, metadata);
 
@@ -46,7 +49,7 @@ export const initializeModule = async (
 
   await Promise.all([
     registerProviders(moduleClass, metadata),
-    registerImports(metadata),
+    registerImports(moduleClass, metadata),
     registerWindows(moduleClass, metadata),
     registerIpcHandlers(moduleClass, metadata),
   ]);

@@ -109,3 +109,77 @@ export class SettingsNotInitializedError extends BaseError {
     );
   }
 }
+
+/**
+ * Thrown when a lazy module trigger is invalid.
+ *
+ * Lazy module triggers must be non-empty strings because they are used as
+ * IPC channel names for ipcMain.handle().
+ */
+export class InvalidLazyTriggerError extends BaseError {
+  constructor(moduleName: string) {
+    super(
+      `Invalid lazy trigger in module "${moduleName}". "lazy.trigger" must be a non-empty string.`,
+      "InvalidLazyTriggerError",
+    );
+  }
+}
+
+/**
+ * Thrown when two lazy modules use the same trigger.
+ *
+ * Each lazy trigger maps to a single ipcMain.handle() channel and therefore
+ * must be unique across modules in one bootstrap cycle.
+ */
+export class DuplicateLazyTriggerError extends BaseError {
+  constructor(trigger: string, firstModule: string, secondModule: string) {
+    super(
+      `Duplicate lazy trigger "${trigger}" detected in modules "${firstModule}" and "${secondModule}". Each lazy module must use a unique trigger.`,
+      "DuplicateLazyTriggerError",
+    );
+  }
+}
+
+/**
+ * Thrown when a lazy module declares exports.
+ *
+ * Lazy modules must not expose providers via exports because they are
+ * unavailable until explicit lazy activation.
+ */
+export class LazyModuleExportsNotAllowedError extends BaseError {
+  constructor(moduleName: string) {
+    super(
+      `Invalid lazy module "${moduleName}". Lazy modules cannot declare exports.`,
+      "LazyModuleExportsNotAllowedError",
+    );
+  }
+}
+
+/**
+ * Thrown when a lazy module imports another lazy module.
+ *
+ * Lazy modules are only allowed to import eager modules.
+ */
+export class LazyModuleCannotImportLazyModuleError extends BaseError {
+  constructor(moduleName: string, importedModuleName: string) {
+    super(
+      `Invalid lazy module "${moduleName}". It cannot import lazy module "${importedModuleName}". Lazy modules can only import eager modules.`,
+      "LazyModuleCannotImportLazyModuleError",
+    );
+  }
+}
+
+/**
+ * Thrown when an eager module imports a lazy module.
+ *
+ * Lazy modules must be activated explicitly via IPC trigger and therefore
+ * cannot be used as direct imports of eager modules.
+ */
+export class EagerModuleCannotImportLazyModuleError extends BaseError {
+  constructor(moduleName: string, importedModuleName: string) {
+    super(
+      `Invalid eager module "${moduleName}". It cannot import lazy module "${importedModuleName}". Eager modules must import only eager modules.`,
+      "EagerModuleCannotImportLazyModuleError",
+    );
+  }
+}

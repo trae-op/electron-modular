@@ -13,11 +13,30 @@
 
 import type { RgModuleMetadata } from "../types/module-metadata.js";
 import type { Constructor } from "../types/constructor.js";
-import { ModuleDecoratorMissingError } from "../errors/index.js";
+import {
+  ModuleDecoratorMissingError,
+  DuplicateLazyTriggerError,
+  InvalidLazyTriggerError,
+} from "../errors/index.js";
 import { instantiateModule } from "./instantiate-module.js";
 import { initializeModule } from "./initialize-module.js";
 import { container } from "../container.js";
 import { initializeIpcHandlers } from "./initialize-ipc/handlers.js";
+import { registerLazyModule } from "./register-lazy-module.js";
+import { validateLazyConstraints } from "./validate-lazy-constraints.js";
+
+const getValidLazyTrigger = (
+  moduleClass: Constructor,
+  metadata: RgModuleMetadata,
+): string => {
+  const trigger = metadata.lazy?.trigger;
+
+  if (typeof trigger !== "string" || trigger.trim().length === 0) {
+    throw new InvalidLazyTriggerError(moduleClass.name);
+  }
+
+  return trigger.trim();
+};
 
 /**
  * Bootstraps an array of modules in the application.
@@ -41,6 +60,8 @@ import { initializeIpcHandlers } from "./initialize-ipc/handlers.js";
 export const bootstrapModules = async (
   modulesClass: Constructor[],
 ): Promise<void> => {
+  const lazyTriggerRegistry = new Map<string, string>();
+
   for (const moduleClass of modulesClass) {
     const metadata = Reflect.getMetadata("RgModule", moduleClass) as
       | RgModuleMetadata
@@ -48,6 +69,26 @@ export const bootstrapModules = async (
 
     if (!metadata) {
       throw new ModuleDecoratorMissingError(moduleClass.name);
+    }
+
+    validateLazyConstraints(moduleClass, metadata);
+
+    if (metadata.lazy?.enabled) {
+      const trigger = getValidLazyTrigger(moduleClass, metadata);
+      const existingModule = lazyTriggerRegistry.get(trigger);
+
+      if (existingModule) {
+        throw new DuplicateLazyTriggerError(
+          trigger,
+          existingModule,
+          moduleClass.name,
+        );
+      }
+
+      lazyTriggerRegistry.set(trigger, moduleClass.name);
+
+      registerLazyModule(moduleClass, metadata);
+      continue;
     }
 
     await initializeModule(moduleClass, metadata);
