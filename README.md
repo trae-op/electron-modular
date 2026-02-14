@@ -544,6 +544,7 @@ Defines a module with its dependencies and providers.
 - `ipc?: Class[]` - IPC handler classes
 - `windows?: Class[]` - Window manager classes
 - `exports?: Class[]` - Providers to export
+- `lazy?: { enabled: true; trigger: string }` - Defers module initialization until renderer invokes the trigger channel
 
 #### `@Injectable()`
 
@@ -642,6 +643,30 @@ Bootstraps all modules and initializes the DI container.
 ```typescript
 await bootstrapModules([AppModule, AuthModule, ResourcesModule]);
 ```
+
+Lazy modules are registered but not initialized during bootstrap. Initialization happens on first `ipcRenderer.invoke(trigger)` from renderer process.
+
+```typescript
+@RgModule({
+  providers: [AnalyticsService],
+  ipc: [AnalyticsIpc],
+  lazy: {
+    enabled: true,
+    trigger: "analytics",
+  },
+})
+export class AnalyticsModule {}
+
+await bootstrapModules([UserModule, AnalyticsModule]);
+// UserModule: initialized immediately
+// AnalyticsModule: initialized on first ipcRenderer.invoke("analytics")
+```
+
+Notes:
+
+- Lazy loading defers runtime initialization work (provider resolution, module instantiation, IPC `onInit`).
+- It does not perform JavaScript code-splitting by itself; module code is still loaded by your app bundle strategy.
+- Each lazy trigger must be unique across modules in the same bootstrap call.
 
 #### `getWindow<T>(hash)`
 
@@ -784,6 +809,7 @@ Defines a module.
 - `ipc?: Class[]` - IPC handler classes
 - `windows?: Class[]` - Window manager classes
 - `exports?: Class[]` - Providers to export
+- `lazy?: { enabled: true; trigger: string }` - Defers module initialization until renderer invokes the trigger channel
 
 ### `@Injectable()`
 

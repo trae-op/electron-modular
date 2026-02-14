@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { bootstrapModules } from "../bootstrap.js";
 import { RgModule } from "../../decorators/rg-module.js";
-import { ModuleDecoratorMissingError } from "../../errors/index.js";
+import {
+  DuplicateLazyTriggerError,
+  InvalidLazyTriggerError,
+  ModuleDecoratorMissingError,
+} from "../../errors/index.js";
 import { container } from "../../container.js";
 import "reflect-metadata/lite";
 
@@ -117,5 +121,35 @@ describe("bootstrapModules", () => {
     await bootstrapModules([Module1, Module2, Module3]);
 
     expect(initOrder).toEqual(["Module1", "Module2", "Module3"]);
+  });
+
+  it("should throw InvalidLazyTriggerError for empty lazy trigger", async () => {
+    @RgModule({
+      providers: [],
+      lazy: { enabled: true, trigger: "   " },
+    })
+    class InvalidLazyModule {}
+
+    await expect(bootstrapModules([InvalidLazyModule])).rejects.toThrow(
+      InvalidLazyTriggerError,
+    );
+  });
+
+  it("should throw DuplicateLazyTriggerError for duplicate lazy triggers", async () => {
+    @RgModule({
+      providers: [],
+      lazy: { enabled: true, trigger: "analytics" },
+    })
+    class LazyModuleA {}
+
+    @RgModule({
+      providers: [],
+      lazy: { enabled: true, trigger: "analytics" },
+    })
+    class LazyModuleB {}
+
+    await expect(bootstrapModules([LazyModuleA, LazyModuleB])).rejects.toThrow(
+      DuplicateLazyTriggerError,
+    );
   });
 });

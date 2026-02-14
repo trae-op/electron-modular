@@ -4,6 +4,7 @@ import { bootstrapModules } from "../bootstrap.js";
 import { RgModule } from "../../decorators/rg-module.js";
 import { container } from "../../container.js";
 import { ipcMain } from "electron";
+import { InvalidLazyTriggerError } from "../../errors/index.js";
 import "reflect-metadata/lite";
 
 describe("registerLazyModule", () => {
@@ -145,6 +146,20 @@ describe("registerLazyModule", () => {
 
     const secondResult = (await handler()) as { initialized: boolean };
     expect(secondResult.initialized).toBe(true);
+  });
+
+  it("should throw InvalidLazyTriggerError for invalid trigger", () => {
+    @RgModule({
+      providers: [],
+      lazy: { enabled: true, trigger: "" },
+    })
+    class InvalidTriggerModule {}
+
+    const metadata = Reflect.getMetadata("RgModule", InvalidTriggerModule);
+
+    expect(() => registerLazyModule(InvalidTriggerModule, metadata)).toThrow(
+      InvalidLazyTriggerError,
+    );
   });
 });
 

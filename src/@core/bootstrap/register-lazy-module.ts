@@ -16,6 +16,20 @@ import { initializeModule } from "./initialize-module.js";
 import { instantiateModule } from "./instantiate-module.js";
 import { container } from "../container.js";
 import { initializeIpcHandlers } from "./initialize-ipc/handlers.js";
+import { InvalidLazyTriggerError } from "../errors/index.js";
+
+const getValidLazyTrigger = (
+  moduleClass: Constructor,
+  metadata: RgModuleMetadata,
+): string => {
+  const trigger = metadata.lazy?.trigger;
+
+  if (typeof trigger !== "string" || trigger.trim().length === 0) {
+    throw new InvalidLazyTriggerError(moduleClass.name);
+  }
+
+  return trigger.trim();
+};
 
 /**
  * Registers a lazy module by setting up an IPC handler for deferred initialization.
@@ -35,7 +49,7 @@ export const registerLazyModule = (
   moduleClass: Constructor,
   metadata: RgModuleMetadata,
 ): void => {
-  const trigger = metadata.lazy!.trigger;
+  const trigger = getValidLazyTrigger(moduleClass, metadata);
   let initPromise: Promise<TLazyModuleResponse> | null = null;
 
   ipcMain.handle(trigger, async (): Promise<TLazyModuleResponse> => {

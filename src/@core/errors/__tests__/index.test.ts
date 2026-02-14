@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
+  DuplicateLazyTriggerError,
+  InvalidLazyTriggerError,
   ModuleNotRegisteredError,
   ProviderNotFoundError,
   ModuleDecoratorMissingError,
@@ -94,6 +96,44 @@ describe("Error classes", () => {
 
     it("should not require any parameters", () => {
       expect(() => new SettingsNotInitializedError()).not.toThrow();
+    });
+  });
+
+  describe("InvalidLazyTriggerError", () => {
+    it("should create error with correct message", () => {
+      const error = new InvalidLazyTriggerError("LazyModule");
+      expect(error.message).toBe(
+        'Invalid lazy trigger in module "LazyModule". "lazy.trigger" must be a non-empty string.',
+      );
+      expect(error.name).toBe("InvalidLazyTriggerError");
+    });
+
+    it("should be instanceof Error", () => {
+      const error = new InvalidLazyTriggerError("LazyModule");
+      expect(error).toBeInstanceOf(Error);
+    });
+  });
+
+  describe("DuplicateLazyTriggerError", () => {
+    it("should create error with correct message", () => {
+      const error = new DuplicateLazyTriggerError(
+        "analytics",
+        "ModuleA",
+        "ModuleB",
+      );
+      expect(error.message).toBe(
+        'Duplicate lazy trigger "analytics" detected in modules "ModuleA" and "ModuleB". Each lazy module must use a unique trigger.',
+      );
+      expect(error.name).toBe("DuplicateLazyTriggerError");
+    });
+
+    it("should be instanceof Error", () => {
+      const error = new DuplicateLazyTriggerError(
+        "analytics",
+        "ModuleA",
+        "ModuleB",
+      );
+      expect(error).toBeInstanceOf(Error);
     });
   });
 

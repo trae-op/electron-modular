@@ -109,3 +109,33 @@ export class SettingsNotInitializedError extends BaseError {
     );
   }
 }
+
+/**
+ * Thrown when a lazy module trigger is invalid.
+ *
+ * Lazy module triggers must be non-empty strings because they are used as
+ * IPC channel names for ipcMain.handle().
+ */
+export class InvalidLazyTriggerError extends BaseError {
+  constructor(moduleName: string) {
+    super(
+      `Invalid lazy trigger in module "${moduleName}". "lazy.trigger" must be a non-empty string.`,
+      "InvalidLazyTriggerError",
+    );
+  }
+}
+
+/**
+ * Thrown when two lazy modules use the same trigger.
+ *
+ * Each lazy trigger maps to a single ipcMain.handle() channel and therefore
+ * must be unique across modules in one bootstrap cycle.
+ */
+export class DuplicateLazyTriggerError extends BaseError {
+  constructor(trigger: string, firstModule: string, secondModule: string) {
+    super(
+      `Duplicate lazy trigger "${trigger}" detected in modules "${firstModule}" and "${secondModule}". Each lazy module must use a unique trigger.`,
+      "DuplicateLazyTriggerError",
+    );
+  }
+}
