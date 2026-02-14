@@ -23,6 +23,7 @@ import { initializeModule } from "./initialize-module.js";
 import { container } from "../container.js";
 import { initializeIpcHandlers } from "./initialize-ipc/handlers.js";
 import { registerLazyModule } from "./register-lazy-module.js";
+import { validateLazyConstraints } from "./validate-lazy-constraints.js";
 
 const getValidLazyTrigger = (
   moduleClass: Constructor,
@@ -69,6 +70,8 @@ export const bootstrapModules = async (
     if (!metadata) {
       throw new ModuleDecoratorMissingError(moduleClass.name);
     }
+
+    validateLazyConstraints(moduleClass, metadata);
 
     if (metadata.lazy?.enabled) {
       const trigger = getValidLazyTrigger(moduleClass, metadata);

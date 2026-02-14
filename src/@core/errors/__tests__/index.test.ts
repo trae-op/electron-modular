@@ -1,7 +1,10 @@
 import { describe, it, expect } from "vitest";
 import {
   DuplicateLazyTriggerError,
+  EagerModuleCannotImportLazyModuleError,
   InvalidLazyTriggerError,
+  LazyModuleCannotImportLazyModuleError,
+  LazyModuleExportsNotAllowedError,
   ModuleNotRegisteredError,
   ProviderNotFoundError,
   ModuleDecoratorMissingError,
@@ -132,6 +135,63 @@ describe("Error classes", () => {
         "analytics",
         "ModuleA",
         "ModuleB",
+      );
+      expect(error).toBeInstanceOf(Error);
+    });
+  });
+
+  describe("LazyModuleExportsNotAllowedError", () => {
+    it("should create error with correct message", () => {
+      const error = new LazyModuleExportsNotAllowedError("AnalyticsModule");
+      expect(error.message).toBe(
+        'Invalid lazy module "AnalyticsModule". Lazy modules cannot declare exports.',
+      );
+      expect(error.name).toBe("LazyModuleExportsNotAllowedError");
+    });
+
+    it("should be instanceof Error", () => {
+      const error = new LazyModuleExportsNotAllowedError("AnalyticsModule");
+      expect(error).toBeInstanceOf(Error);
+    });
+  });
+
+  describe("LazyModuleCannotImportLazyModuleError", () => {
+    it("should create error with correct message", () => {
+      const error = new LazyModuleCannotImportLazyModuleError(
+        "AnalyticsModule",
+        "DatabaseModule",
+      );
+      expect(error.message).toBe(
+        'Invalid lazy module "AnalyticsModule". It cannot import lazy module "DatabaseModule". Lazy modules can only import eager modules.',
+      );
+      expect(error.name).toBe("LazyModuleCannotImportLazyModuleError");
+    });
+
+    it("should be instanceof Error", () => {
+      const error = new LazyModuleCannotImportLazyModuleError(
+        "AnalyticsModule",
+        "DatabaseModule",
+      );
+      expect(error).toBeInstanceOf(Error);
+    });
+  });
+
+  describe("EagerModuleCannotImportLazyModuleError", () => {
+    it("should create error with correct message", () => {
+      const error = new EagerModuleCannotImportLazyModuleError(
+        "AnalyticsModule",
+        "DatabaseModule",
+      );
+      expect(error.message).toBe(
+        'Invalid eager module "AnalyticsModule". It cannot import lazy module "DatabaseModule". Eager modules must import only eager modules.',
+      );
+      expect(error.name).toBe("EagerModuleCannotImportLazyModuleError");
+    });
+
+    it("should be instanceof Error", () => {
+      const error = new EagerModuleCannotImportLazyModuleError(
+        "AnalyticsModule",
+        "DatabaseModule",
       );
       expect(error).toBeInstanceOf(Error);
     });

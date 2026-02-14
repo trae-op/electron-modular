@@ -9,6 +9,8 @@
  */
 
 import type { RgModuleMetadata } from "../types/module-metadata.js";
+import type { Constructor } from "../types/constructor.js";
+import { EagerModuleCannotImportLazyModuleError } from "../errors/index.js";
 import { initializeModule } from "./initialize-module.js";
 
 /**
@@ -20,6 +22,7 @@ import { initializeModule } from "./initialize-module.js";
  * @param metadata - Module metadata containing imports array
  */
 export const registerImports = async (
+  moduleClass: Constructor,
   metadata: RgModuleMetadata,
 ): Promise<void> => {
   if (!metadata.imports) {
@@ -31,6 +34,13 @@ export const registerImports = async (
       "RgModule",
       importedModuleClass,
     ) as RgModuleMetadata | undefined;
+
+    if (importedModuleMetadata?.lazy?.enabled && !metadata.lazy?.enabled) {
+      throw new EagerModuleCannotImportLazyModuleError(
+        moduleClass.name,
+        importedModuleClass.name,
+      );
+    }
 
     if (importedModuleMetadata) {
       await initializeModule(importedModuleClass, importedModuleMetadata);

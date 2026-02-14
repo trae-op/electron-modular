@@ -3,7 +3,10 @@ import { bootstrapModules } from "../bootstrap.js";
 import { RgModule } from "../../decorators/rg-module.js";
 import {
   DuplicateLazyTriggerError,
+  EagerModuleCannotImportLazyModuleError,
   InvalidLazyTriggerError,
+  LazyModuleCannotImportLazyModuleError,
+  LazyModuleExportsNotAllowedError,
   ModuleDecoratorMissingError,
 } from "../../errors/index.js";
 import { container } from "../../container.js";
@@ -150,6 +153,58 @@ describe("bootstrapModules", () => {
 
     await expect(bootstrapModules([LazyModuleA, LazyModuleB])).rejects.toThrow(
       DuplicateLazyTriggerError,
+    );
+  });
+
+  it("should throw LazyModuleExportsNotAllowedError when lazy module declares exports", async () => {
+    class ExportedService {}
+
+    @RgModule({
+      providers: [ExportedService],
+      exports: [ExportedService],
+      lazy: { enabled: true, trigger: "analytics" },
+    })
+    class InvalidLazyExportsModule {}
+
+    await expect(bootstrapModules([InvalidLazyExportsModule])).rejects.toThrow(
+      LazyModuleExportsNotAllowedError,
+    );
+  });
+
+  it("should throw LazyModuleCannotImportLazyModuleError when lazy module imports lazy module", async () => {
+    @RgModule({
+      providers: [],
+      lazy: { enabled: true, trigger: "database" },
+    })
+    class DatabaseModule {}
+
+    @RgModule({
+      imports: [DatabaseModule],
+      providers: [],
+      lazy: { enabled: true, trigger: "analytics" },
+    })
+    class AnalyticsModule {}
+
+    await expect(bootstrapModules([AnalyticsModule])).rejects.toThrow(
+      LazyModuleCannotImportLazyModuleError,
+    );
+  });
+
+  it("should throw EagerModuleCannotImportLazyModuleError when eager module imports lazy module", async () => {
+    @RgModule({
+      providers: [],
+      lazy: { enabled: true, trigger: "database" },
+    })
+    class DatabaseModule {}
+
+    @RgModule({
+      imports: [DatabaseModule],
+      providers: [],
+    })
+    class EagerAnalyticsModule {}
+
+    await expect(bootstrapModules([EagerAnalyticsModule])).rejects.toThrow(
+      EagerModuleCannotImportLazyModuleError,
     );
   });
 });

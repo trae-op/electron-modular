@@ -3,6 +3,7 @@ import { initializeModule } from "../initialize-module.js";
 import { container } from "../../container.js";
 import { RgModule } from "../../decorators/rg-module.js";
 import { Injectable } from "../../decorators/injectable.js";
+import { EagerModuleCannotImportLazyModuleError } from "../../errors/index.js";
 import type { TParamOnInit } from "../../types/ipc-handler.js";
 import "reflect-metadata/lite";
 
@@ -132,5 +133,28 @@ describe("initializeModule", () => {
     await initializeModule(MinimalModule, metadata);
 
     expect(container.hasModule(MinimalModule)).toBe(true);
+  });
+
+  it("should enforce lazy constraints for imported modules", async () => {
+    class ExportedService {}
+
+    @RgModule({
+      providers: [ExportedService],
+      exports: [ExportedService],
+      lazy: { enabled: true, trigger: "db" },
+    })
+    class InvalidLazyImport {}
+
+    @RgModule({
+      imports: [InvalidLazyImport],
+      providers: [],
+    })
+    class HostModule {}
+
+    const metadata = Reflect.getMetadata("RgModule", HostModule);
+
+    await expect(initializeModule(HostModule, metadata)).rejects.toThrow(
+      EagerModuleCannotImportLazyModuleError,
+    );
   });
 });
