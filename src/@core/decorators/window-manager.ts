@@ -9,7 +9,7 @@
  * @module @core/decorators/window-manager
  */
 
-import "reflect-metadata/lite";
+import "../../reflect-metadata.js";
 import type { TParamsCreateWindow } from "../control-window/types.js";
 
 /**

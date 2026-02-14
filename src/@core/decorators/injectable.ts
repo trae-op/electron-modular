@@ -9,7 +9,7 @@
  * @module @core/decorators/injectable
  */
 
-import "reflect-metadata/lite";
+import "../../reflect-metadata.js";
 
 /**
  * Decorator that marks a class as injectable into the DI container.
