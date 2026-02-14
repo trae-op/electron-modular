@@ -7,7 +7,7 @@
  * @module @core/utils/dependency-tokens
  */
 
-import "reflect-metadata/lite";
+import "../../reflect-metadata.js";
 import type { Constructor } from "../types/constructor.js";
 import type { TProviderToken } from "../types/provider.js";
 import { getInjectedTokens } from "../decorators/inject.js";

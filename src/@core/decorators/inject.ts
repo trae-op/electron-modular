@@ -10,7 +10,7 @@
  * @module @core/decorators/inject
  */
 
-import "reflect-metadata/lite";
+import "../../reflect-metadata.js";
 import type { TProviderToken } from "../types/provider.js";
 
 /** Maps parameter index to provider token */
@@ -43,8 +43,10 @@ export const Inject = (token: TProviderToken): ParameterDecorator => {
       return;
     }
 
-    const existingTokens: TInjectTokensMetadata =
-      Reflect.getMetadata(INJECT_TOKENS_METADATA_KEY, target) ?? {};
+    const existingTokens =
+      (Reflect.getMetadata(INJECT_TOKENS_METADATA_KEY, target) as
+        | TInjectTokensMetadata
+        | undefined) ?? ({} as TInjectTokensMetadata);
 
     existingTokens[parameterIndex] = token;
 
@@ -61,5 +63,9 @@ export const Inject = (token: TProviderToken): ParameterDecorator => {
  * @returns Map of parameter index to provider token
  */
 export const getInjectedTokens = (target: Function): TInjectTokensMetadata => {
-  return Reflect.getMetadata(INJECT_TOKENS_METADATA_KEY, target) ?? {};
+  return (
+    (Reflect.getMetadata(INJECT_TOKENS_METADATA_KEY, target) as
+      | TInjectTokensMetadata
+      | undefined) ?? ({} as TInjectTokensMetadata)
+  );
 };

@@ -1,3 +1,5 @@
+import "./reflect-metadata.js";
+
 // Container
 export * from "./@core/container.js";
 

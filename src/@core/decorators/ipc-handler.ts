@@ -9,7 +9,7 @@
  * @module @core/decorators/ipc-handler
  */
 
-import "reflect-metadata/lite";
+import "../../reflect-metadata.js";
 
 /**
  * Decorator that marks a class as an IPC handler.

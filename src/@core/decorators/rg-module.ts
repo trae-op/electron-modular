@@ -11,7 +11,7 @@
  * @module @core/decorators/rg-module
  */
 
-import "reflect-metadata/lite";
+import "../../reflect-metadata.js";
 import type { RgModuleMetadata } from "../types/module-metadata.js";
 
 /**
