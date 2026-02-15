@@ -725,6 +725,8 @@ These constraints guarantee clear module boundaries: lazy modules are activated 
 
 #### Example: valid lazy module
 
+The Main Process
+
 ```typescript
 @RgModule({
   imports: [DatabaseCoreModule], // eager module
@@ -732,15 +734,39 @@ These constraints guarantee clear module boundaries: lazy modules are activated 
   ipc: [AnalyticsIpc],
   lazy: {
     enabled: true,
-    trigger: "analytics:init",
+    trigger: "init-analytics-lazy",
   },
 })
 export class AnalyticsModule {}
 
 await bootstrapModules([AppModule, AnalyticsModule]);
+```
 
-// Renderer side:
-await ipcRenderer.invoke("analytics:init");
+The Renderer process in React
+
+```typescript
+import { useEffect, useCallback } from "react";
+
+....
+
+export const App = () => {
+
+  const initAnalyticsModule = useCallback(async () => {
+    const { initialized, name, error } = await window.electron.invoke("init-analytics-lazy");
+
+    if (initialized && error === undefined) {
+      console.log('Success!', 'Module:', name);
+    } else {
+      console.log('Error!', 'Module:', name, error.message);
+    }
+  }, []);
+
+  useEffect(() => {
+    initAnalyticsModule();
+  }, [initAnalyticsModule]);
+
+  return <>Home</>;
+};
 ```
 
 #### Example: invalid (lazy + exports)
