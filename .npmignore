@@ -13,13 +13,18 @@ src/
 tsconfig.json
 tsconfig.tests.json
 vitest.config.ts
+tsup.config.ts
 .gitignore
 .github/
+node_modules/
 
 # Documentation
 docs/
 *.md
 !README.md
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+plan-lazy.md
 
 # Coverage
 coverage/
