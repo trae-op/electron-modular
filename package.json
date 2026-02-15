@@ -1,6 +1,6 @@
 {
   "name": "@devisfuture/electron-modular",
-  "version": "1.2.17",
+  "version": "1.2.18",
   "description": "Core module system, DI container, IPC handlers, and window utilities for Electron main process.",
   "type": "module",
   "main": "./dist/index.js",
@@ -22,9 +22,12 @@
   "publishConfig": {
     "access": "public"
   },
-  "sideEffects": false,
+  "sideEffects": [
+    "./src/reflect-metadata.ts",
+    "./dist/index.js"
+  ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsup",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
@@ -42,6 +45,7 @@
     "@vitest/ui": "^2.1.9",
     "electron": "^36.4.0",
     "reflect-metadata": "^0.2.2",
+    "tsup": "^8.5.0",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"
   },
