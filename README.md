@@ -95,10 +95,10 @@ pnpm add @devisfuture/electron-modular
 
 Peer dependency:
 
-This package targets Electron's main process and declares Electron >=36 as a peer dependency. Ensure Electron is installed in your project:
+This package targets Electron's main process and declares Electron >=28.3.3 as a peer dependency. Ensure Electron is installed in your project:
 
 ```bash
-npm install --save-dev electron@^36
+npm install --save-dev electron
 ```
 
 TypeScript setup:
