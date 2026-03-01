@@ -4,7 +4,7 @@
 
 [![npm version](https://img.shields.io/npm/v/@devisfuture/electron-modular.svg)](https://www.npmjs.com/package/@devisfuture/electron-modular) [![Downloads](https://img.shields.io/npm/dt/@devisfuture/electron-modular.svg)](https://www.npmjs.com/package/@devisfuture/electron-modular) [![Build](https://img.shields.io/github/actions/workflow/status/trae-op/electron-modular/ci.yml?branch=main)](https://github.com/trae-op/electron-modular/actions/workflows/ci.yml) [![Coverage](https://img.shields.io/codecov/c/github/trae-op/electron-modular/main)](https://codecov.io/gh/trae-op/electron-modular) [![TypeScript](https://img.shields.io/badge/TypeScript-%233178C6.svg?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/) [![GitHub Stars](https://img.shields.io/github/stars/trae-op/electron-modular?style=social)](https://github.com/trae-op/electron-modular)
 
-A ⭐ means a lot if this saved you some time.
+If this package saved you some time, a ⭐ on GitHub would be much appreciated.
 
 ## Navigation
 
