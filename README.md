@@ -1,16 +1,10 @@
-# Package Documentation
-
 <p align="center">
   <img src="./illustration.png" alt="electron-modular illustration" width="640" />
 </p>
 
-[![npm version](https://img.shields.io/npm/v/@devisfuture/electron-modular.svg)](https://www.npmjs.com/package/@devisfuture/electron-modular) [![Downloads](https://img.shields.io/npm/dt/@devisfuture/electron-modular.svg)](https://www.npmjs.com/package/@devisfuture/electron-modular) [![Build](https://img.shields.io/github/actions/workflow/status/trae-op/electron-modular/ci.yml?branch=main)](https://github.com/trae-op/electron-modular/actions/workflows/ci.yml) [![Coverage](https://img.shields.io/codecov/c/github/trae-op/electron-modular/main)](https://codecov.io/gh/trae-op/electron-modular) [![Bundle size](https://img.shields.io/bundlephobia/minzip/@devisfuture/electron-modular)](https://bundlephobia.com/package/@devisfuture/electron-modular) [![License](https://img.shields.io/npm/l/@devisfuture/electron-modular.svg)](https://github.com/trae-op/electron-modular/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-%233178C6.svg?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![npm version](https://img.shields.io/npm/v/@devisfuture/electron-modular.svg)](https://www.npmjs.com/package/@devisfuture/electron-modular) [![Downloads](https://img.shields.io/npm/dt/@devisfuture/electron-modular.svg)](https://www.npmjs.com/package/@devisfuture/electron-modular) [![Build](https://img.shields.io/github/actions/workflow/status/trae-op/electron-modular/ci.yml?branch=main)](https://github.com/trae-op/electron-modular/actions/workflows/ci.yml) [![Coverage](https://img.shields.io/codecov/c/github/trae-op/electron-modular/main)](https://codecov.io/gh/trae-op/electron-modular) [![TypeScript](https://img.shields.io/badge/TypeScript-%233178C6.svg?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/) [![GitHub Stars](https://img.shields.io/github/stars/trae-op/electron-modular?style=social)](https://github.com/trae-op/electron-modular)
 
-## Collaboration
-
-- Contributing guide: [CONTRIBUTING.md](CONTRIBUTING.md)
-- Code of Conduct: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
-- Security policy: [SECURITY.md](SECURITY.md)
+A ⭐ means a lot if this saved you some time.
 
 ## Navigation
 
@@ -672,30 +666,6 @@ Bootstraps all modules and initializes the DI container.
 await bootstrapModules([AppModule, AuthModule, ResourcesModule]);
 ```
 
-Lazy modules are registered but not initialized during bootstrap. Initialization happens on first `ipcRenderer.invoke(trigger)` from renderer process.
-
-```typescript
-@RgModule({
-  providers: [AnalyticsService],
-  ipc: [AnalyticsIpc],
-  lazy: {
-    enabled: true,
-    trigger: "analytics",
-  },
-})
-export class AnalyticsModule {}
-
-await bootstrapModules([UserModule, AnalyticsModule]);
-// UserModule: initialized immediately
-// AnalyticsModule: initialized on first ipcRenderer.invoke("analytics")
-```
-
-Notes:
-
-- Lazy loading defers runtime initialization work (provider resolution, module instantiation, IPC `onInit`).
-- It does not perform JavaScript code-splitting by itself; module code is still loaded by your app bundle strategy.
-- Each lazy trigger must be unique across modules in the same bootstrap call.
-
 ### Lazy Loading modules
 
 Lazy Loading lets you defer module initialization until the renderer explicitly requests it via `ipcRenderer.invoke(trigger)`.
@@ -1018,3 +988,9 @@ const window = await mainWindow.create();
 ```typescript
 app.on("before-quit", () => destroyWindows());
 ```
+
+## Collaboration
+
+- Contributing guide: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Code of Conduct: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- Security policy: [SECURITY.md](SECURITY.md)
